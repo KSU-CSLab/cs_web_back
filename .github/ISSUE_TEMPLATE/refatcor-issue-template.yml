@@ -1,0 +1,32 @@
+name: "🛠 Refactor"
+description: "리팩토링"
+title: "[Refactor]"
+labels: ["refactor"]
+body:
+  - type: textarea
+    attributes:
+      label: 🤮 As Is
+      description: 리팩터링하게 된 원인을 설명해 주세요.
+      validations:
+        requires: true
+  - type: textarea
+    attributes:
+      label: 🤩 To Be
+      description: 리팩터링하고자 하는 방향을 공유해 주세요.
+      validations:
+        requires: true
+  - type: textarea
+    attributes:
+      label: 🙋🏻 참고 자료
+      description: 참고 자료가 있다면 작성해 주세요.
+  - type: checkboxes
+    attributes:
+      label: 🙇‍♀️ 이슈 확인했어요 :)
+      description: 팀원에게 이슈 확인을 부탁해요! 이슈를 확인한 팀원은 체크 표시를 해주세요!
+      options:
+        - label: 현욱
+        - label: 영빈
+        - label: 건우
+        - label: 세현
+        - label: 지우
+        - label: 은서

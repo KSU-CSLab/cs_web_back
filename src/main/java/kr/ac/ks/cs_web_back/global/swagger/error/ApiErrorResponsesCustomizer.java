@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import org.springdoc.core.customizers.OperationCustomizer;
 import org.springframework.http.HttpStatusCode;
+import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 
 import io.swagger.v3.oas.models.Operation;
@@ -17,7 +18,8 @@ import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.responses.ApiResponses;
 
-public class ApiErrorResopnsesCustomizer implements OperationCustomizer {
+@Component
+public class ApiErrorResponsesCustomizer implements OperationCustomizer {
 
     @Override
     public Operation customize(Operation operation, HandlerMethod handlerMethod) {
@@ -61,7 +63,7 @@ public class ApiErrorResopnsesCustomizer implements OperationCustomizer {
         if (httpStatusCode.is5xxServerError()) {
             return description + "서버 오류";
         }
-        return description + "문서화에 오류가 발생했습니다. 서버팀에게 문의해주세요 😭";
+        return description + "문서화에 오류가 발생했습니다. 서버팀에 문의해주세요.";
     }
 
     private MediaType makeMediaType(ApiErrorResponse apiErrorResponse) {

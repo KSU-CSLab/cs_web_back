@@ -7,14 +7,14 @@ body:
     attributes:
       label: 🤮 As Is
       description: 리팩터링하게 된 원인을 설명해 주세요.
-      validations:
-        requires: true
+    validations:
+      requires: true
   - type: textarea
     attributes:
       label: 🤩 To Be
       description: 리팩터링하고자 하는 방향을 공유해 주세요.
-      validations:
-        requires: true
+    validations:
+      requires: true
   - type: textarea
     attributes:
       label: 🙋🏻 참고 자료

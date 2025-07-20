@@ -1,0 +1,37 @@
+name: "✨ Feature"
+description: "새로운 기능 추가"
+title: "[Feature] "
+labels: ["feature"]
+body:
+  - type: textarea
+    attributes:
+      label: 📄 설명
+      description: 새로운 기능에 대한 설명을 작성해 주세요.
+      placeholder: 자세히 작성해 주세요!
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: ✅ 작업할 내용
+      description: 할 일을 체크박스로 작성해주세요.
+      value: |
+        - [ ]
+        - [ ]
+        - [ ]
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: 🙋🏻 참고 자료
+      description: 참고 자료가 있다면 작성해 주세요.
+  - type: checkboxes
+    attributes:
+      label: 🙇‍♀️ 이슈 확인했어요 :)
+      description: 팀원에게 이슈 확인을 부탁해요! 이슈를 확인한 팀원은 체크 표시를 해주세요!
+      options:
+        - label: 현욱
+        - label: 영빈
+        - label: 건우
+        - label: 세현
+        - label: 지우
+        - label: 은서

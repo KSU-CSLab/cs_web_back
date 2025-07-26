@@ -2,6 +2,7 @@ package kr.ac.ks.cs_web_back.domain.member.model;
 
 import jakarta.persistence.*;
 import kr.ac.ks.cs_web_back.domain.common.BaseEntity;
+import kr.ac.ks.cs_web_back.domain.member.dto.request.MemberCreateRequest;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -40,7 +41,13 @@ public class Member extends BaseEntity {
         this.number = number;
     }
 
-    public static Member of(String email, String password, String username, LocalDate birthdate, String number) {
-        return new Member(email, password, username, birthdate, number);
+    public static Member of(MemberCreateRequest request) {
+        return new Member(
+                request.email(),
+                request.password(),
+                request.username(),
+                request.birthdate(),
+                request.number()
+        );
     }
 }

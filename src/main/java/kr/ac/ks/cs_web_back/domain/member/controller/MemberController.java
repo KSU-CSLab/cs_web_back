@@ -21,7 +21,7 @@ public class MemberController implements SpringDocMemberController {
     public ResponseEntity<Void> createMember(
             @Valid @RequestBody MemberCreateRequest request
     ) {
-        memberService.createMember(request.email(), request.password(), request.username(), request.birthdate(), request.number());
+        memberService.createMember(request);
         return ResponseEntity.ok().build();
     }
 }

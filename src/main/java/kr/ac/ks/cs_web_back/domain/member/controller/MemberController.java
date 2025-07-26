@@ -1,8 +1,8 @@
-package kr.ac.ks.cs_web_back.domain.Member.controller;
+package kr.ac.ks.cs_web_back.domain.member.controller;
 
 import jakarta.validation.Valid;
-import kr.ac.ks.cs_web_back.domain.Member.dto.request.MemberCreateRequest;
-import kr.ac.ks.cs_web_back.domain.Member.service.MemberService;
+import kr.ac.ks.cs_web_back.domain.member.dto.request.MemberCreateRequest;
+import kr.ac.ks.cs_web_back.domain.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

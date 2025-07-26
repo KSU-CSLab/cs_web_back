@@ -1,4 +1,4 @@
-package kr.ac.ks.cs_web_back.domain.Member.dto.request;
+package kr.ac.ks.cs_web_back.domain.member.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;

@@ -1,7 +1,7 @@
-package kr.ac.ks.cs_web_back.domain.Member.service;
+package kr.ac.ks.cs_web_back.domain.member.service;
 
-import kr.ac.ks.cs_web_back.domain.Member.model.Member;
-import kr.ac.ks.cs_web_back.domain.Member.repository.MemberRepository;
+import kr.ac.ks.cs_web_back.domain.member.model.Member;
+import kr.ac.ks.cs_web_back.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

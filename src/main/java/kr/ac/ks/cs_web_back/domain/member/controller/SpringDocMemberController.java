@@ -1,9 +1,9 @@
-package kr.ac.ks.cs_web_back.domain.Member.controller;
+package kr.ac.ks.cs_web_back.domain.member.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import kr.ac.ks.cs_web_back.domain.Member.dto.request.MemberCreateRequest;
+import kr.ac.ks.cs_web_back.domain.member.dto.request.MemberCreateRequest;
 import kr.ac.ks.cs_web_back.global.swagger.error.ApiErrorResponse;
 import kr.ac.ks.cs_web_back.global.swagger.error.ErrorCase;
 import org.springframework.http.HttpStatus;

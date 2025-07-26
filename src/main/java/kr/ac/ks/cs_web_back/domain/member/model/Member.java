@@ -1,15 +1,18 @@
-package kr.ac.ks.cs_web_back.domain.Member.model;
+package kr.ac.ks.cs_web_back.domain.member.model;
 
 import jakarta.persistence.*;
+import kr.ac.ks.cs_web_back.domain.common.BaseEntity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDate;
 
 @Entity
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Member {
+public class Member extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -24,12 +27,12 @@ public class Member {
     private String username;
 
     @Column(nullable = false)
-    private String birthdate;
+    private LocalDate birthdate;
 
     @Column(nullable = false)
     private String number;
 
-    private Member(String email,  String password, String username, String birthdate, String number) {
+    private Member(String email,  String password, String username, LocalDate birthdate, String number) {
         this.email = email;
         this.password = password;
         this.username = username;
@@ -37,7 +40,7 @@ public class Member {
         this.number = number;
     }
 
-    public static Member of(String email, String password, String username, String birthdate, String number) {
+    public static Member of(String email, String password, String username, LocalDate birthdate, String number) {
         return new Member(email, password, username, birthdate, number);
     }
 }

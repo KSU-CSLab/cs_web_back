@@ -4,6 +4,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
+import java.time.LocalDate;
+
 @Schema(description = "회원가입")
 public record MemberCreateRequest(
         @Schema(description = "이메일", example = "example@ks.ac.kr")
@@ -20,9 +22,9 @@ public record MemberCreateRequest(
         @Size(max = 12, message = "유저명은 12자 내로 입력해 주세요.")
         String username,
 
-        @Schema(description = "생년월일", example = "2002.09.05")
+        @Schema(description = "생년월일", example = "2002-09-05")
         @NotBlank(message = "생년월일이 입력되지 않았습니다.")
-        String birthdate,
+        LocalDate birthdate,
 
         @Schema(description = "전화번호", example = "055-663-5140")
         @NotBlank(message = "전화번호가 입력되지 않았습니다.")

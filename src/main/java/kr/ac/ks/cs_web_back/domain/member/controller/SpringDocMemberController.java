@@ -15,17 +15,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 public interface SpringDocMemberController {
 
     @Operation(summary = "회원가입", description = "회원 가입")
-    @ApiResponse(responseCode = "200", description = "회원가입에 성공했습니다.")
+    @ApiResponse(responseCode = "201", description = "회원가입에 성공했습니다.")
     @ApiErrorResponse(status = HttpStatus.BAD_REQUEST, instance = "/member/register", errorCases = {
-            @ErrorCase(description = "이메일 없음", exampleMessage = "이메일이 입력되지 않았습니다."),
-            @ErrorCase(description = "비밀번호 없음", exampleMessage = "비밀번호가 입력되지 않았습니다."),
-            @ErrorCase(description = "사용자명 없음", exampleMessage = "사용자명이 입력되지 않았습니다."),
-            @ErrorCase(description = "전화번호 없음", exampleMessage = "전화번호가 입력되지 않았습니다."),
-            @ErrorCase(description = "생년월일 없음", exampleMessage = "생년월일 입력되지 않았습니다.")
+            @ErrorCase(description = "이메일 없음", code = 9010, exampleMessage = "이메일이 입력되지 않았습니다."),
+            @ErrorCase(description = "비밀번호 없음", code = 9011, exampleMessage = "비밀번호가 입력되지 않았습니다."),
+            @ErrorCase(description = "사용자명 없음", code = 9012, exampleMessage = "사용자명이 입력되지 않았습니다.")
     })
     @ApiErrorResponse(status = HttpStatus.CONFLICT, instance = "/member/register", errorCases = {
-            @ErrorCase(description = "중복 이메일", exampleMessage = "이미 존재하는 이메일입니다."),
-            @ErrorCase(description = "중복 사용자명", exampleMessage = "이미 존재하는 사용자명입니다.")
+            @ErrorCase(description = "중복 이메일", code = 5010, exampleMessage = "이미 존재하는 이메일입니다."),
+            @ErrorCase(description = "중복 사용자명", code = 5011, exampleMessage = "이미 존재하는 사용자명입니다.")
     })
     CsResponse<Long> register(
             @RequestBody MemberCreateRequest request

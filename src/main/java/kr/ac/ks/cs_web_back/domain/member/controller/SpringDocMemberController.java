@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import kr.ac.ks.cs_web_back.domain.member.dto.request.MemberCreateRequest;
+import kr.ac.ks.cs_web_back.global.response.CsResponse;
 import kr.ac.ks.cs_web_back.global.swagger.error.ApiErrorResponse;
 import kr.ac.ks.cs_web_back.global.swagger.error.ErrorCase;
 import org.springframework.http.HttpStatus;
@@ -26,7 +27,7 @@ public interface SpringDocMemberController {
             @ErrorCase(description = "중복 이메일", exampleMessage = "이미 존재하는 이메일입니다."),
             @ErrorCase(description = "중복 사용자명", exampleMessage = "이미 존재하는 사용자명입니다.")
     })
-    ResponseEntity<Void> register(
+    CsResponse<Long> register(
             @RequestBody MemberCreateRequest request
     );
 }

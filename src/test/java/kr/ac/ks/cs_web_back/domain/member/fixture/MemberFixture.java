@@ -8,14 +8,13 @@ import java.time.LocalDate;
 public class MemberFixture {
 
     public static Member memberFixture() {
-        MemberCreateRequest request = new MemberCreateRequest(
-                "example@ks.ac.kr",
-                "password123",
-                "username",
-                LocalDate.parse("2002-09-05"),
-                "010-1234-5678"
-        );
-        return Member.of(request);
+        return Member.builder()
+                .email("example@ks.ac.kr")
+                .password("examplePassword1234!")
+                .username("exampleUser")
+                .birthdate(LocalDate.parse("2002-09-05"))
+                .number("055-663-5140")
+                .build();
     }
 
 }

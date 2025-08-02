@@ -1,6 +1,7 @@
 package kr.ac.ks.cs_web_back.domain.member.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
@@ -23,11 +24,11 @@ public record MemberCreateRequest(
         String username,
 
         @Schema(description = "생년월일", example = "2002-09-05")
-        @NotBlank(message = "생년월일이 입력되지 않았습니다.")
+        @Nullable
         LocalDate birthdate,
 
         @Schema(description = "전화번호", example = "055-663-5140")
-        @NotBlank(message = "전화번호가 입력되지 않았습니다.")
+        @Nullable
         String number
 ) {
 }

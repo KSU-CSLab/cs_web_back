@@ -2,8 +2,8 @@ package kr.ac.ks.cs_web_back.domain.member.model;
 
 import jakarta.persistence.*;
 import kr.ac.ks.cs_web_back.domain.common.BaseEntity;
-import kr.ac.ks.cs_web_back.domain.member.dto.request.MemberCreateRequest;
-import lombok.AllArgsConstructor;
+import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -11,8 +11,7 @@ import java.time.LocalDate;
 
 @Entity
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Member extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,27 +26,18 @@ public class Member extends BaseEntity {
     @Column(nullable = false)
     private String username;
 
-    @Column(nullable = false)
+    @Column
     private LocalDate birthdate;
 
-    @Column(nullable = false)
+    @Column
     private String number;
 
+    @Builder
     private Member(String email,  String password, String username, LocalDate birthdate, String number) {
         this.email = email;
         this.password = password;
         this.username = username;
         this.birthdate = birthdate;
         this.number = number;
-    }
-
-    public static Member of(MemberCreateRequest request) {
-        return new Member(
-                request.email(),
-                request.password(),
-                request.username(),
-                request.birthdate(),
-                request.number()
-        );
     }
 }

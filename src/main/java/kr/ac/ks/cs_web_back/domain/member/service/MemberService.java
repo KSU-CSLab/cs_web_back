@@ -1,9 +1,13 @@
 package kr.ac.ks.cs_web_back.domain.member.service;
 
+import kr.ac.ks.cs_web_back.domain.member.controller.code.MemberExceptionCode;
 import kr.ac.ks.cs_web_back.domain.member.dto.request.MemberCreateRequest;
 import kr.ac.ks.cs_web_back.domain.member.model.Member;
 import kr.ac.ks.cs_web_back.domain.member.repository.MemberRepository;
+import kr.ac.ks.cs_web_back.global.exeption.domain.ConflictException;
+import kr.ac.ks.cs_web_back.global.response.SuccessCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,9 +17,25 @@ import org.springframework.transaction.annotation.Transactional;
 public class MemberService {
 
     private final MemberRepository memberRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public void createMember(MemberCreateRequest request) {
-        Member member = Member.of(request);
-        memberRepository.save(member);
+    public Long createMember(MemberCreateRequest request) {
+        if (memberRepository.existsByEmail(request.email()))
+            throw new ConflictException(MemberExceptionCode.CONFLICT_EMAIL);
+
+        if (memberRepository.existsByUsername(request.username()))
+            throw new ConflictException(MemberExceptionCode.CONFLICT_USERNAME);
+
+        String encodedPassword = passwordEncoder.encode(request.password());
+
+        Member member = Member.builder()
+                .email(request.email())
+                .password(encodedPassword)
+                .username(request.username())
+                .birthdate(request.birthdate())
+                .number(request.number())
+                .build();
+
+        return memberRepository.save(member).getId();
     }
 }

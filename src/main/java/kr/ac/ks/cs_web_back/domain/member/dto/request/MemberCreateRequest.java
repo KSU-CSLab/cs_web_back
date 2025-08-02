@@ -21,14 +21,6 @@ public record MemberCreateRequest(
         @Schema(description = "사용자명", example = "userNickName")
         @NotBlank(message = "사용자명이 입력되지 않았습니다.")
         @Size(max = 12, message = "유저명은 12자 내로 입력해 주세요.")
-        String username,
-
-        @Schema(description = "생년월일", example = "2002-09-05")
-        @Nullable
-        LocalDate birthdate,
-
-        @Schema(description = "전화번호", example = "055-663-5140")
-        @Nullable
-        String number
+        String username
 ) {
 }

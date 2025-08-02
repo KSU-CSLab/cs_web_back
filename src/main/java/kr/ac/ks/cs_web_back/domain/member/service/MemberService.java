@@ -5,7 +5,6 @@ import kr.ac.ks.cs_web_back.domain.member.dto.request.MemberCreateRequest;
 import kr.ac.ks.cs_web_back.domain.member.model.Member;
 import kr.ac.ks.cs_web_back.domain.member.repository.MemberRepository;
 import kr.ac.ks.cs_web_back.global.exeption.domain.ConflictException;
-import kr.ac.ks.cs_web_back.global.response.SuccessCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -32,8 +31,6 @@ public class MemberService {
                 .email(request.email())
                 .password(encodedPassword)
                 .username(request.username())
-                .birthdate(request.birthdate())
-                .number(request.number())
                 .build();
 
         return memberRepository.save(member).getId();

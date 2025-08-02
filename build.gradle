@@ -57,21 +57,24 @@ jacocoTestReport {
 	reports {
 		xml.required.set(true)
 		html.required.set(true)
-
-		// QueryDSL Q클래스 제외
-		def Qdomains = []
-		for (qPattern in "**/QA".."**/QZ") {
-			Qdomains.add(qPattern + "*")
-		}
-
-		afterEvaluate {
-			classDirectories.setFrom(files(classDirectories.files.collect {
-				fileTree(dir: it,
-						exclude: [] + Qdomains)
-			}))
-		}
-
-		xml.destination file("${buildDir}/jacoco/index.xml")
-		html.destination file("${buildDir}/jacoco/index.html")
 	}
+
+	afterEvaluate {
+		classDirectories.setFrom(files(classDirectories.files.collect {
+			fileTree(dir: it, excludes: [
+					"**/*Application.class",
+					"**/config/**",
+					"**/common/**",
+					"**/exeption/**",
+					"**/response/**",
+					"**/swagger/**",
+					"**/code/**",
+
+					"**/dto/**"
+			])
+		}))
+	}
+
+	xml.destination file("${buildDir}/reports/jacoco/test/jacocoTestReport.xml")
+		html.destination file("${buildDir}/reports/jacoco/test/jacocoTestReport.html")
 }

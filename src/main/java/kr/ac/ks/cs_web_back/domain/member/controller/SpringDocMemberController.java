@@ -26,7 +26,7 @@ public interface SpringDocMemberController {
             @ErrorCase(description = "중복 이메일", exampleMessage = "이미 존재하는 이메일입니다."),
             @ErrorCase(description = "중복 사용자명", exampleMessage = "이미 존재하는 사용자명입니다.")
     })
-    ResponseEntity<Void> createMember(
+    ResponseEntity<Void> register(
             @RequestBody MemberCreateRequest request
     );
 }

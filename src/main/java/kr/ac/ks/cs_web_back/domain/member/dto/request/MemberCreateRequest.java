@@ -1,11 +1,8 @@
 package kr.ac.ks.cs_web_back.domain.member.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-
-import java.time.LocalDate;
 
 @Schema(description = "회원가입")
 public record MemberCreateRequest(

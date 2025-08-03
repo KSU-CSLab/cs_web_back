@@ -52,29 +52,29 @@ test {
 }
 
 jacocoTestReport {
-	dependsOn test
+    dependsOn(test)
 
-	reports {
-		xml.required.set(true)
-		html.required.set(true)
-	}
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
 
-	afterEvaluate {
-		classDirectories.setFrom(files(classDirectories.files.collect {
-			fileTree(dir: it, excludes: [
-					"**/*Application.class",
-					"**/config/**",
-					"**/common/**",
-					"**/exeption/**",
-					"**/response/**",
-					"**/swagger/**",
-					"**/code/**",
+        // 생성될 리포트의 위치 지정
+        xml.destination(file("${buildDir}/reports/jacoco/test/jacocoTestReport.xml"))
+        html.destination(file("${buildDir}/reports/jacoco/test/jacocoTestReport.html"))
+    }
 
-					"**/dto/**"
-			])
-		}))
-	}
-
-	xml.destination file("${buildDir}/reports/jacoco/test/jacocoTestReport.xml")
-		html.destination file("${buildDir}/reports/jacoco/test/jacocoTestReport.html")
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it, excludes: [
+                    "**/*Application.class",
+                    "**/config/**",
+                    "**/common/**",
+                    "**/exeption/**",
+                    "**/response/**",
+                    "**/swagger/**",
+                    "**/code/**",
+                    "**/dto/**"
+            ])
+        }))
+    }
 }

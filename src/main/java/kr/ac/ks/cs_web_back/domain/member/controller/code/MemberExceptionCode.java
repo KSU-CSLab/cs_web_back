@@ -13,6 +13,8 @@ public enum MemberExceptionCode implements ExceptionCode {
     BAD_REQUEST_NO_USERNAME(9012, "사용자명이 입력되지 않았습니다."),
     CONFLICT_EMAIL(5010, "이미 존재하는 이메일입니다."),
     CONFLICT_USERNAME(5012, "이미 존재하는 사용자명입니다."),
+    NOT_FOUND_USER(6001, "일치하는 사용자가 존재하지 않습니다."),
+    UNAUTHORIZED_PASSWORD(8011, "비밀번호가 일치하지 않습니다."),
     ;
 
     private final int code;

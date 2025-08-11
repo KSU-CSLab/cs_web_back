@@ -8,6 +8,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum MemberSuccessCode implements SuccessCode {
 
+    LOGIN_SUCCESS(2001, "로그인에 성공했습니다."),
     GENERATED_REGISTERED(2101, "회원가입에 성공했습니다."),
     OK_WITHDRAWN(2102,"회원 탈퇴에 성공했습니다."),
     OK_FOUND_USER_PROFILE(2103, "사용자 정보 조회에 성공했습니다."),

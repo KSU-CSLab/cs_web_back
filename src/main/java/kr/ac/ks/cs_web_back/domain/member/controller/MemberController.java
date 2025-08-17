@@ -3,7 +3,7 @@ package kr.ac.ks.cs_web_back.domain.member.controller;
 import jakarta.validation.Valid;
 import kr.ac.ks.cs_web_back.domain.member.controller.code.MemberSuccessCode;
 import kr.ac.ks.cs_web_back.domain.member.dto.request.MemberCreateRequest;
-import kr.ac.ks.cs_web_back.domain.member.dto.request.MemberLoginRequest;
+import kr.ac.ks.cs_web_back.domain.auth.dto.request.AuthLoginRequest;
 import kr.ac.ks.cs_web_back.domain.member.service.MemberService;
 import kr.ac.ks.cs_web_back.global.response.CsResponse;
 import lombok.RequiredArgsConstructor;
@@ -24,14 +24,5 @@ public class MemberController implements SpringDocMemberController {
     ) {
         Long id = memberService.createMember(request);
         return CsResponse.of(MemberSuccessCode.GENERATED_REGISTERED, id);
-    }
-
-    @PostMapping("/login")
-    @ResponseStatus(HttpStatus.OK)
-    public CsResponse<Long> login(
-            @Valid @RequestBody MemberLoginRequest request
-    ) {
-        String token = memberService.loginMember(request);
-        return CsResponse.of(MemberSuccessCode.LOGIN_SUCCESS, token);
     }
 }

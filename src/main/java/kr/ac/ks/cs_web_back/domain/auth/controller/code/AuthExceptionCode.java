@@ -1,0 +1,19 @@
+package kr.ac.ks.cs_web_back.domain.auth.controller.code;
+
+import kr.ac.ks.cs_web_back.global.exeption.dto.ExceptionCode;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+@Getter
+@AllArgsConstructor
+public enum AuthExceptionCode implements ExceptionCode {
+
+    BAD_REQUEST_NO_EMAIL(9010, "이메일이 입력되지 않았습니다."),
+    BAD_REQUEST_NO_PASSWORD(9011, "비밀번호가 입력되지 않았습니다."),
+    UNAUTHORIZED_PASSWORD(8011, "비밀번호가 일치하지 않습니다."),
+    NOT_FOUND_USER(6001, "일치하는 사용자가 존재하지 않습니다."),
+    ;
+
+    private final int code;
+    private final String message;
+}

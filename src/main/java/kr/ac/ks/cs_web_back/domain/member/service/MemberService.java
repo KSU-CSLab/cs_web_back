@@ -2,6 +2,7 @@ package kr.ac.ks.cs_web_back.domain.member.service;
 
 import kr.ac.ks.cs_web_back.domain.member.controller.code.MemberExceptionCode;
 import kr.ac.ks.cs_web_back.domain.member.dto.request.MemberCreateRequest;
+import kr.ac.ks.cs_web_back.domain.member.dto.request.MemberWithdrawalRequest;
 import kr.ac.ks.cs_web_back.domain.member.model.Member;
 import kr.ac.ks.cs_web_back.domain.member.repository.MemberRepository;
 import kr.ac.ks.cs_web_back.global.exeption.domain.ConflictException;
@@ -34,5 +35,10 @@ public class MemberService {
                 .build();
 
         return memberRepository.save(member).getId();
+    }
+
+    public Long withdraw(MemberWithdrawalRequest request){
+        Member member = memberRepository.findById(request.username())
+                .orElseThrow(() -> new )
     }
 }

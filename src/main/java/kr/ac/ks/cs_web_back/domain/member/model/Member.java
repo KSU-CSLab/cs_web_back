@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -32,6 +33,13 @@ public class Member extends BaseEntity {
     @Column
     private String number;
 
+    @Column(name = "is_withdrawn", nullable = false)
+    private boolean isWithdrawn;
+
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
+
+
     @Builder
     private Member(String email,  String password, String username, LocalDate birthdate, String number) {
         this.email = email;
@@ -39,5 +47,10 @@ public class Member extends BaseEntity {
         this.username = username;
         this.birthdate = birthdate;
         this.number = number;
+    }
+
+    public void withdrawNow(){
+        this.isWithdrawn = true;
+        this.deletedAt = LocalDateTime.now();
     }
 }

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import kr.ac.ks.cs_web_back.domain.auth.controller.code.AuthExceptionCode;
 import kr.ac.ks.cs_web_back.domain.auth.controller.code.AuthSuccessCode;
 import kr.ac.ks.cs_web_back.domain.auth.dto.request.AuthLoginRequest;
+import kr.ac.ks.cs_web_back.domain.auth.dto.response.AuthLoginResponse;
 import kr.ac.ks.cs_web_back.domain.auth.fixture.AuthFixture;
 import kr.ac.ks.cs_web_back.domain.auth.service.AuthService;
 import kr.ac.ks.cs_web_back.global.exeption.domain.NotFoundException;
@@ -39,9 +40,13 @@ public class AuthControllerTest {
     void loginSuccessReturns200OkWithToken() throws Exception {
         // given
         AuthLoginRequest request = AuthFixture.successLoginRequest();
+        AuthLoginResponse response = AuthLoginResponse.builder()
+                .authorization("fake-access-token")
+                .authorizationRefresh("fake-refresh-token")
+                .build();
 
         when(authService.loginMember(any(AuthLoginRequest.class)))
-                .thenReturn("fake-jwt-token");
+                .thenReturn(response);
 
         // when & then
         mockMvc.perform(post("/auth/login")
@@ -50,7 +55,8 @@ public class AuthControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(AuthSuccessCode.LOGIN_SUCCESS.getCode()))
                 .andExpect(jsonPath("$.message").value(AuthSuccessCode.LOGIN_SUCCESS.getMessage()))
-                .andExpect(jsonPath("$.data").value("fake-jwt-token"));
+                .andExpect(jsonPath("$.data.authorization").value("fake-access-token"))
+                .andExpect(jsonPath("$.data.authorizationRefresh").value("fake-refresh-token"));
     }
 
     @Test

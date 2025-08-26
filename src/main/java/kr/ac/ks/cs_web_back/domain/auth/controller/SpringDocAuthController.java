@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import kr.ac.ks.cs_web_back.domain.auth.dto.request.AuthLoginRequest;
+import kr.ac.ks.cs_web_back.domain.auth.dto.response.AuthLoginResponse;
 import kr.ac.ks.cs_web_back.global.response.CsResponse;
 import kr.ac.ks.cs_web_back.global.swagger.error.ApiErrorResponse;
 import kr.ac.ks.cs_web_back.global.swagger.error.ErrorCase;
@@ -25,7 +26,7 @@ public interface SpringDocAuthController {
     @ApiErrorResponse(status = HttpStatus.NOT_FOUND, instance = "/auth/login", errorCases = {
             @ErrorCase(description = "사용자 없음", code = 6001, exampleMessage = "일치하는 사용자가 존재하지 않습니다.")
     })
-    CsResponse<String> login(
+    CsResponse<AuthLoginResponse> login(
             @RequestBody AuthLoginRequest request
     );
 

@@ -28,11 +28,9 @@ public class AuthService {
 
         if(!passwordEncoder.matches(request.password(), member.getPassword()))
             throw new UnauthorizedException(AuthExceptionCode.UNAUTHORIZED_PASSWORD);
-
-        long accessTokenExpireTime = 1000L * 60 * 60; // 1 hour
-        long refreshTokenExpireTime = 1000L * 60 * 60;  // 24 hours
-        String accessToken = jwtUtil.generateToken(member.getEmail(), accessTokenExpireTime);
-        String refreshToken = jwtUtil.generateToken(member.getEmail(), refreshTokenExpireTime);
+        // 24 hours
+        String accessToken = jwtUtil.generateAccessToken(member.getEmail());
+        String refreshToken = jwtUtil.generateRefreshToken(member.getEmail());
         return AuthLoginResponse.builder()
                 .authorization(accessToken)
                 .authorizationRefresh(refreshToken)

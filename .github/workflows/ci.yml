@@ -22,6 +22,12 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      - name: Make application-test.properties
+        run: |
+          mkdir -p ./src/test/resources
+          echo "${{ secrets.ENV_PROPERTIES }}" > ./src/test/resources/application-test.properties
+        shell: bash
+
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
 

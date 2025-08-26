@@ -30,11 +30,6 @@ public class Auth {
     }
 
     @Generated
-    public long getId() {
-        return this.id;
-    }
-
-    @Generated
     public String getUsername() {
         return this.username;
     }

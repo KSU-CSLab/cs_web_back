@@ -5,12 +5,4 @@ public record TokenResponse(String accessToken, String refreshToken) {
         this.accessToken = accessToken;
         this.refreshToken = refreshToken;
     }
-
-    public String accessToken() {
-        return this.accessToken;
-    }
-
-    public String refreshToken() {
-        return this.refreshToken;
-    }
 }

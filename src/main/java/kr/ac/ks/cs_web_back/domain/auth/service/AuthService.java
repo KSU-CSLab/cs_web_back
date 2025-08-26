@@ -5,23 +5,20 @@ import kr.ac.ks.cs_web_back.domain.auth.model.Auth;
 import kr.ac.ks.cs_web_back.domain.auth.repository.AuthRepository;
 import kr.ac.ks.cs_web_back.global.security.JwtTokenProvider;
 import lombok.Generated;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class AuthService {
     AuthRepository authRepository;
     JwtTokenProvider jwtTokenProvider;
 
-    public void createAuth(String username, String password) {
-        Auth auth = Auth.of(username, password);
-        this.authRepository.save(auth);
-    }
-
     public TokenResponse reissue(String oldRefreshToken) {
-        this.jwtTokenProvider.validateRefreshToken(oldRefreshToken);
-        String subject = this.jwtTokenProvider.getSubject(oldRefreshToken);
-        String newAccess = this.jwtTokenProvider.createAccessToken(subject);
-        String newRefresh = this.jwtTokenProvider.createRefreshToken(subject);
+        jwtTokenProvider.validateRefreshToken(oldRefreshToken);
+        String subject = jwtTokenProvider.getSubject(oldRefreshToken);
+        String newAccess = jwtTokenProvider.createAccessToken(subject);
+        String newRefresh = jwtTokenProvider.createRefreshToken(subject);
         return new TokenResponse(newAccess, newRefresh);
     }
 

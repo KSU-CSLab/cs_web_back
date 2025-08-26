@@ -3,6 +3,7 @@ package kr.ac.ks.cs_web_back.domain.auth.service;
 import jakarta.transaction.Transactional;
 import kr.ac.ks.cs_web_back.domain.auth.controller.code.AuthExceptionCode;
 import kr.ac.ks.cs_web_back.domain.auth.dto.request.AuthLoginRequest;
+import kr.ac.ks.cs_web_back.domain.auth.dto.response.AuthLoginResponse;
 import kr.ac.ks.cs_web_back.domain.auth.fixture.AuthFixture;
 import kr.ac.ks.cs_web_back.domain.member.fixture.MemberFixture;
 import kr.ac.ks.cs_web_back.domain.member.model.Member;
@@ -51,10 +52,12 @@ public class AuthServiceTest {
         AuthLoginRequest request = AuthFixture.successLoginRequest();
 
         // when
-        String token = authService.loginMember(request);
+        AuthLoginResponse response = authService.loginMember(request);
 
         // then
-        assert token != null && !token.isEmpty();
+        assertThat(response).isNotNull();
+        assertThat(response.authorization()).isNotNull().isNotBlank();
+        assertThat(response.authorizationRefresh()).isNotNull().isNotBlank();
     }
 
     @Test

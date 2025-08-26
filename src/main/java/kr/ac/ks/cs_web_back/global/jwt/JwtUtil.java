@@ -2,6 +2,8 @@ package kr.ac.ks.cs_web_back.global.jwt;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.spec.SecretKeySpec;
@@ -11,11 +13,28 @@ import java.util.Date;
 
 @Component
 public class JwtUtil {
-    private final String secret = "RXZlbiBhIHF1YW50dW0gY29tcHV0ZXIgd291bGQgaGF2ZSB0byBjYWxjdWxhdGUgdW50aWwgdGhlIGVuZCBvZiB0aGUgdW5pdmVyc2UgdG8gYnJlYWsgdGhpcy4=";
+    @Value("${jwt.secret}")
+    private String secret;
+
+    @Value("${jwt.accessTokenExpireTime}")
+    private Long accessTokenExpireTime;
+
+    @Value("${jwt.refreshTokenExpireTime}")
+    private Long refreshTokenExpireTime;
+
     private Key hmacKey;
-    public JwtUtil() {
+
+    @PostConstruct
+    public void init() {
         byte[] decodedKey = Base64.getDecoder().decode(secret);
         this.hmacKey = new SecretKeySpec(decodedKey, SignatureAlgorithm.HS256.getJcaName());
+    }
+    public String generateAccessToken(String email) {
+        return generateToken(email, accessTokenExpireTime);
+    }
+
+    public String generateRefreshToken(String email) {
+        return generateToken(email, refreshTokenExpireTime);
     }
 
     public String generateToken(String email, Long expireTime) {

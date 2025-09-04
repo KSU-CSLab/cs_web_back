@@ -9,7 +9,6 @@ import kr.ac.ks.cs_web_back.global.response.CsResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -28,8 +27,13 @@ public class MemberController implements SpringDocMemberController {
         return CsResponse.of(MemberSuccessCode.GENERATED_REGISTERED, id);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<MemberResponse> getMemberInfo(@PathVariable Long id) {
-        return ResponseEntity.ok(memberService.getMemberInfo(id));
+    @GetMapping("/profile")
+    public CsResponse<MemberResponse> getMemberInfo(
+            @RequestHeader("Authorization") String token,
+            @RequestParam("userid") Long userId
+    ) {
+        MemberResponse response = memberService.getMemberInfo(userId);
+        return CsResponse.of(MemberSuccessCode.OK_FOUND_USER_PROFILE, response);
     }
+
 }

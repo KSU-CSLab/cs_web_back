@@ -1,8 +1,12 @@
 package kr.ac.ks.cs_web_back.global.jwt;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.annotation.PostConstruct;
+import kr.ac.ks.cs_web_back.domain.auth.controller.code.AuthExceptionCode;
+import kr.ac.ks.cs_web_back.global.exeption.domain.InvalidTokenException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -45,5 +49,24 @@ public class JwtUtil {
                 .setExpiration(expiryDate)
                 .signWith(hmacKey)
                 .compact();
+    }
+
+    public String getEmailFromToken(String token) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(hmacKey)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+
+        return claims.getSubject();
+    }
+
+    public boolean validateToken(String token) {
+        try {
+            Jwts.parserBuilder().setSigningKey(hmacKey).build().parseClaimsJws(token);
+            return true;
+        } catch (JwtException | IllegalArgumentException e) {
+            throw new InvalidTokenException(AuthExceptionCode.NOT_FOUND_USER);
+        }
     }
 }

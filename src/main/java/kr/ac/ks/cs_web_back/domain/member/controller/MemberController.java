@@ -9,7 +9,6 @@ import kr.ac.ks.cs_web_back.global.response.CsResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/member")

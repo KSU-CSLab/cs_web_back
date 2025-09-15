@@ -10,6 +10,7 @@ import kr.ac.ks.cs_web_back.global.response.CsResponse;
 import kr.ac.ks.cs_web_back.global.swagger.error.ApiErrorResponse;
 import kr.ac.ks.cs_web_back.global.swagger.error.ErrorCase;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.RequestHeader;
 
 @Tag(name = "인증 API", description = "인증 관련 API")
 public interface SpringDocAuthController {
@@ -29,5 +30,20 @@ public interface SpringDocAuthController {
     CsResponse<AuthLoginResponse> login(
             @RequestBody AuthLoginRequest request
     );
-
+    @Operation(summary = "로그아웃", description = "사용자의 JWT토큰을 받아 형식을 검사하고 성공시 토큰을 만료시킵니다.")
+    @ApiResponse(responseCode = "200", description = "로그아웃에 성공했습니다.")
+    @ApiErrorResponse(status = HttpStatus.BAD_REQUEST, instance = "/auth/logout", errorCases = {
+            @ErrorCase(description = "토큰 없음", code = 9001, exampleMessage = "토큰이 없습니다.")
+    })
+    @ApiErrorResponse(status = HttpStatus.UNAUTHORIZED, instance = "/auth/logout", errorCases = {
+            @ErrorCase(description = "유효하지 않은 토큰", code = 8002, exampleMessage = "유효하지 않은 토큰 형식입니다."),
+            @ErrorCase(description = "만료된 토큰", code = 8003, exampleMessage = "만료된 토큰입니다."),
+            @ErrorCase(description = "인증 실패", code = 8004, exampleMessage = "인증에 실패했습니다.")
+    })
+    @ApiErrorResponse(status = HttpStatus.INTERNAL_SERVER_ERROR, instance = "/auth/logout", errorCases = {
+            @ErrorCase(description = "서버 오류", code = 5000, exampleMessage = "서버에서 예기치 못한 오류가 발생했습니다.")
+    })
+    CsResponse<Void> logout(
+            @RequestHeader("Authorization") String authorizationHeader
+    );
 }

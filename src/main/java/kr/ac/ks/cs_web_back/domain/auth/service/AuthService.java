@@ -36,4 +36,7 @@ public class AuthService {
                 .authorizationRefresh(refreshToken)
                 .build();
     }
+    public void logout(String authorizationHeader) {
+        String accessToken = jwtUtil.revolseToken(authorizationHeader);
+    }
 }

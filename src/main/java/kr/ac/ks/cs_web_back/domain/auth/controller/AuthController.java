@@ -23,4 +23,11 @@ public class AuthController implements SpringDocAuthController{
         AuthLoginResponse token = authService.loginMember(request);
         return CsResponse.of(AuthSuccessCode.LOGIN_SUCCESS, token);
     }
+    @PostMapping("/logout")
+    public CsResponse<Void> logout (
+            @Valid @RequestHeader("Authorization") String authorizationHeader
+    ) {
+        authService.logout(authorizationHeader);
+        return CsResponse.of(AuthSuccessCode.LOGOUT_SUCCESS);
+    }
 }

@@ -3,6 +3,8 @@ package kr.ac.ks.cs_web_back.global.jwt;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.annotation.PostConstruct;
+import kr.ac.ks.cs_web_back.domain.auth.controller.code.AuthExceptionCode;
+import kr.ac.ks.cs_web_back.global.exeption.domain.UnauthorizedException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -45,5 +47,12 @@ public class JwtUtil {
                 .setExpiration(expiryDate)
                 .signWith(hmacKey)
                 .compact();
+    }
+    //Bearer을 제외한 토큰부분만 추출
+    public String revolseToken(String authorizationHeader) {
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            return authorizationHeader.substring(7);
+        }
+        throw new UnauthorizedException(AuthExceptionCode.UNAUTHORIZED_TOKEN_FORM);
     }
 }

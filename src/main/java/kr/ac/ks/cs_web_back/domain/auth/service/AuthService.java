@@ -1,5 +1,6 @@
 package kr.ac.ks.cs_web_back.domain.auth.service;
 
+import io.jsonwebtoken.Claims;
 import kr.ac.ks.cs_web_back.domain.auth.controller.code.AuthExceptionCode;
 import kr.ac.ks.cs_web_back.domain.auth.dto.request.AuthLoginRequest;
 import kr.ac.ks.cs_web_back.domain.auth.dto.response.AuthLoginResponse;
@@ -37,6 +38,7 @@ public class AuthService {
                 .build();
     }
     public void logout(String authorizationHeader) {
-        String accessToken = jwtUtil.revolseToken(authorizationHeader);
+        String accessToken = jwtUtil.resolveToken(authorizationHeader);
+        Claims claims = jwtUtil.getClaimsFromToken(accessToken);
     }
 }

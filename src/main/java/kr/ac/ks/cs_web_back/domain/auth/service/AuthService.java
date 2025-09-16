@@ -24,7 +24,7 @@ public class AuthService {
 
     public AuthLoginResponse loginMember(AuthLoginRequest request) {
         Member member = memberRepository.findByEmail(request.email())
-                .orElseThrow(() -> new NotFoundException(AuthExceptionCode.NOT_FOUND_USER));
+                .orElseThrow(() -> new NotFoundException(AuthExceptionCode.UNAUTHORIZED_FAILED_VALIDATION));
 
         if(!passwordEncoder.matches(request.password(), member.getPassword()))
             throw new UnauthorizedException(AuthExceptionCode.UNAUTHORIZED_PASSWORD);

@@ -1,6 +1,8 @@
 package kr.ac.ks.cs_web_back.global.jwt;
 
 import jakarta.servlet.http.HttpServletRequest;
+import kr.ac.ks.cs_web_back.global.exeption.GlobalExceptionCode;
+import kr.ac.ks.cs_web_back.global.exeption.domain.InvalidTokenException;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 

@@ -6,6 +6,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.annotation.PostConstruct;
 import kr.ac.ks.cs_web_back.domain.auth.controller.code.AuthExceptionCode;
+import kr.ac.ks.cs_web_back.global.exeption.GlobalExceptionCode;
 import kr.ac.ks.cs_web_back.global.exeption.domain.InvalidTokenException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -66,7 +67,7 @@ public class JwtUtil {
             Jwts.parserBuilder().setSigningKey(hmacKey).build().parseClaimsJws(token);
             return true;
         } catch (JwtException | IllegalArgumentException e) {
-            throw new InvalidTokenException(AuthExceptionCode.NOT_FOUND_USER);
+            throw new InvalidTokenException(GlobalExceptionCode.UNAUTHORIZED_INVALID_TOKEN);
         }
     }
 }

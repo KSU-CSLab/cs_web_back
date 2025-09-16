@@ -9,16 +9,25 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.mockito.Mockito.when;
+
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import static org.mockito.BDDMockito.given;
+import static org.mockito.ArgumentMatchers.anyLong;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 
 @WebMvcTest(controllers = MemberController.class, excludeAutoConfiguration = SecurityAutoConfiguration.class)
+@Import(MemberControllerTest.TestErrorAdvice.class)
+
 public class MemberControllerTest {
 
     @MockitoBean
@@ -48,8 +57,8 @@ public class MemberControllerTest {
 
         // when & then
         mockMvc.perform(post("/member/register")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(request)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated());
     }
 
@@ -116,8 +125,8 @@ public class MemberControllerTest {
 
         // when & then
         mockMvc.perform(post("/member/register")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(request)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
     }
 
@@ -155,5 +164,137 @@ public class MemberControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
+    @Test
+    @DisplayName("유저조회 성공: 유저 정보 조회에 성공하면 200 OK를 반환한다.")
+    public void getMemberInfoReturns200Ok() throws Exception {
+        // given
+        var resp = new kr.ac.ks.cs_web_back.domain.member.dto.response.MemberResponse(
+                "example@ks.ac.kr",
+                "쿨쿨푸데데드르렁퓨우",
+                java.time.LocalDate.of(2006, 2, 3),
+                "010 6648 7274"
+        );
+        given(memberService.getMemberInfo(anyLong())).willReturn(resp);
+
+        // when & then
+        mockMvc.perform(get("/member/profile")
+                        .header("Authorization", "accessToken")
+                        .param("userid", "1")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("유저조회 실패: Authorization 헤더가 없으면 400 BadRequest를 반환한다.")
+    public void getMemberInfoWithoutAuthHeaderReturns400BadRequest() throws Exception {
+        // when & then
+        mockMvc.perform(get("/member/profile")
+                        .param("userid", "1"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("유저조회 실패: 유효하지 않은 토큰 형식이면 401 Unauthorized를 반환한다.")
+    void getMemberInfo_401_invalidTokenFormat() throws Exception {
+        // given
+        when(memberService.getMemberInfo(anyLong()))
+                .thenThrow(new InvalidTokenFormatException("유효하지 않은 토큰 형식입니다."));
+
+        // when & then
+        mockMvc.perform(get("/member/profile")
+                        .header("Authorization", "bad-format-token")
+                        .param("userid", "1")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized());
+    }
+    @Test
+    @DisplayName("유저조회 실패: 만료된 토큰이면 401 Unauthorized를 반환한다.")
+    void getMemberInfo_401_expiredToken() throws Exception {
+        // given
+        when(memberService.getMemberInfo(anyLong()))
+                .thenThrow(new TokenExpiredException("만료된 토큰입니다."));
+
+        // when & then
+        mockMvc.perform(get("/member/profile")
+                        .header("Authorization", "expired-token")
+                        .param("userid", "1"))
+                .andExpect(status().isUnauthorized());
+
+    }
+
+    @Test
+    @DisplayName("유저조회 실패: 본인의 정보가 아니면 403 Forbidden를 반환한다.")
+    void getMemberInfo_403_forbidden() throws Exception {
+        // given
+        when(memberService.getMemberInfo(anyLong()))
+                .thenThrow(new ForbiddenAccessException("본인의 정보만 조회할 수 있습니다."));
+
+        // when & then
+        mockMvc.perform(get("/member/profile")
+                        .header("Authorization", "accessToken-of-user-1")
+                        .param("userid", "2"))
+                .andExpect(status().isForbidden());
+
+    }
+
+
+
+
+    @Test
+    @DisplayName("유저조회 실패: 존재하지 않는 사용자면 404 NotFound를 반환한다.")
+    public void getMemberInfoReturns404NotFound() throws Exception {
+        // given
+        given(memberService.getMemberInfo(anyLong()))
+                .willThrow(new IllegalArgumentException("일치하는 사용자가 존재하지 않습니다."));
+
+        // when & then
+        mockMvc.perform(get("/member/profile")
+                        .header("Authorization", "accessToken")
+                        .param("userid", "99"))
+                .andExpect(status().isNotFound());
+
+    }
+
+    // 테스트 전용 예외
+    static class InvalidTokenFormatException extends RuntimeException { public InvalidTokenFormatException(String m){ super(m);} }
+    static class TokenExpiredException extends RuntimeException { public TokenExpiredException(String m){ super(m);} }
+    static class ForbiddenAccessException extends RuntimeException { public ForbiddenAccessException(String m){ super(m);} }
+
+    // 테스트 전용 핸들러
+    @org.springframework.web.bind.annotation.ExceptionHandler(org.springframework.web.bind.MissingRequestHeaderException.class)
+    public org.springframework.http.ResponseEntity<java.util.Map<String,Object>> h0(org.springframework.web.bind.MissingRequestHeaderException e){
+        return org.springframework.http.ResponseEntity
+                .status(org.springframework.http.HttpStatus.BAD_REQUEST)
+                .body(java.util.Map.of("code",9001,"message","토큰이 없습니다."));
+    }
+
+    @org.springframework.web.bind.annotation.RestControllerAdvice(assignableTypes = MemberController.class)
+    static class TestErrorAdvice {
+        @org.springframework.web.bind.annotation.ExceptionHandler(InvalidTokenFormatException.class)
+        org.springframework.http.ResponseEntity<java.util.Map<String,Object>> h1(InvalidTokenFormatException e){
+            return org.springframework.http.ResponseEntity.status(org.springframework.http.HttpStatus.UNAUTHORIZED)
+                    .body(java.util.Map.of("code",8002,"message",e.getMessage()));
+        }
+        @org.springframework.web.bind.annotation.ExceptionHandler(TokenExpiredException.class)
+        org.springframework.http.ResponseEntity<java.util.Map<String,Object>> h2(TokenExpiredException e){
+            return org.springframework.http.ResponseEntity.status(org.springframework.http.HttpStatus.UNAUTHORIZED)
+                    .body(java.util.Map.of("code",8003,"message",e.getMessage()));
+        }
+        @org.springframework.web.bind.annotation.ExceptionHandler(ForbiddenAccessException.class)
+        org.springframework.http.ResponseEntity<java.util.Map<String,Object>> h3(ForbiddenAccessException e){
+            return org.springframework.http.ResponseEntity.status(org.springframework.http.HttpStatus.FORBIDDEN)
+                    .body(java.util.Map.of("code",7001,"message",e.getMessage()));
+        }
+        @org.springframework.web.bind.annotation.ExceptionHandler(IllegalArgumentException.class)
+        org.springframework.http.ResponseEntity<java.util.Map<String,Object>> h4(IllegalArgumentException e){
+            return org.springframework.http.ResponseEntity.status(org.springframework.http.HttpStatus.NOT_FOUND)
+                    .body(java.util.Map.of("code",6001,"message",e.getMessage()));
+        }
+        @org.springframework.web.bind.annotation.ExceptionHandler(Exception.class)
+        org.springframework.http.ResponseEntity<java.util.Map<String,Object>> h5(Exception e){
+            return org.springframework.http.ResponseEntity.status(org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(java.util.Map.of("code",5000,"message","서버에서 예기치 못한 오류가 발생했습니다."));
+        }
+    }
 
 }

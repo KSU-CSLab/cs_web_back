@@ -3,7 +3,6 @@ package kr.ac.ks.cs_web_back.domain.member.controller;
 import jakarta.validation.Valid;
 import kr.ac.ks.cs_web_back.domain.member.controller.code.MemberSuccessCode;
 import kr.ac.ks.cs_web_back.domain.member.dto.request.MemberCreateRequest;
-import kr.ac.ks.cs_web_back.domain.auth.dto.request.AuthLoginRequest;
 import kr.ac.ks.cs_web_back.domain.member.service.MemberService;
 import kr.ac.ks.cs_web_back.global.response.CsResponse;
 import lombok.RequiredArgsConstructor;

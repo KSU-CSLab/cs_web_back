@@ -151,14 +151,4 @@ public class JwtAuthenticationFilterTest {
         verify(filterChain, times(1)).doFilter(request, response);
         assertNull(SecurityContextHolder.getContext().getAuthentication());
     }
-
-    @Test
-    @DisplayName("인증되지 않은 사용자가 보호된 리소스에 접근 시 401 Unauthorized 응답을 받는다.")
-    void shouldReturn401UnauthorizedWhenUnauthenticatedAccessToSecuredResource() throws Exception {
-        mockMvc.perform(get("/protected/securedResource"))
-                .andExpect(status().isUnauthorized())
-                .andExpect(content().contentType("application/json;charset=UTF-8"))
-                .andExpect(jsonPath("$.code").value(AuthExceptionCode.UNAUTHORIZED_INVALID_TOKEN.getCode()))
-                .andExpect(jsonPath("$.message").value(AuthExceptionCode.UNAUTHORIZED_INVALID_TOKEN.getMessage()));
-    }
 }

@@ -48,7 +48,7 @@ public class MemberServiceTest {
 
         assertThat(createdId).isEqualTo(1L);
         assertThat(savedMember.getEmail()).isEqualTo(request.email());
-        assertThat(savedMember.getNickName()).isEqualTo(request.username());
+        assertThat(savedMember.getNickname()).isEqualTo(request.username());
         assertThat(passwordEncoder.matches(request.password(), savedMember.getPassword())).isTrue();
     }
 

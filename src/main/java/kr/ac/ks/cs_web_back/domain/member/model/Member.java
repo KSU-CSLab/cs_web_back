@@ -45,8 +45,17 @@ public class Member extends BaseEntity implements UserDetails {
         this.number = number;
     }
 
+    public String getNickname() {
+        return username;
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return Collections.emptyList();
+    }
+
+    @Override
+    public String getUsername() {
+        return email;
     }
 }

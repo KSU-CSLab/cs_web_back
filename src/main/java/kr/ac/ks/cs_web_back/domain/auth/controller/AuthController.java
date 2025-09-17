@@ -14,10 +14,15 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/auth")
 @RequiredArgsConstructor
 public class AuthController {
-    AuthService authService;
+    private final AuthService authService;
 
     @PostMapping({"/reissue"})
     public CsResponse reissue(@RequestHeader("Authorization-Refresh") String oldRefreshToken) {
+        // "Bearer" 접두사 제거
+        if (oldRefreshToken.startsWith("Bearer ")) {
+            oldRefreshToken = oldRefreshToken.substring(7);
+        }
+
         TokenResponse tokens = this.authService.reissue(oldRefreshToken);
         return CsResponse.of(AuthSuccessCode.OK_TOKEN_REISSUED, tokens);
     }

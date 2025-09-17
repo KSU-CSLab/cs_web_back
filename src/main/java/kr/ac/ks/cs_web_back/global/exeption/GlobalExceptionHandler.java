@@ -10,10 +10,6 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import kr.ac.ks.cs_web_back.global.exeption.dto.ValidationExceptionCode;
-import org.springframework.validation.FieldError;
-
-import java.util.List;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {

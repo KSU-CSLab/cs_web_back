@@ -5,6 +5,7 @@ import kr.ac.ks.cs_web_back.domain.member.model.Member;
 import kr.ac.ks.cs_web_back.global.annotation.IdentifiedUser;
 import kr.ac.ks.cs_web_back.global.exeption.domain.InvalidTokenException;
 import org.springframework.core.MethodParameter;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.support.WebDataBinderFactory;
@@ -23,7 +24,13 @@ public class IdentifiedUserArgumentResolver implements HandlerMethodArgumentReso
     @Override
     public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
                                   NativeWebRequest webRequest, WebDataBinderFactory binderFactory) {
-        final Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null) {
+            throw new InvalidTokenException(AuthExceptionCode.UNAUTHORIZED_INVALID_TOKEN);
+        }
+
+        final Object principal = authentication.getPrincipal();
 
         if (!(principal instanceof Member)) {
             throw new InvalidTokenException(AuthExceptionCode.UNAUTHORIZED_INVALID_TOKEN);

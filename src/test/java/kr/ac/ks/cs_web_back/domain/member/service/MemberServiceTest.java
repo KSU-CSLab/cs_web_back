@@ -102,4 +102,16 @@ public class MemberServiceTest {
                     assertThat(e.getExceptionCode()).isEqualTo(MemberExceptionCode.CONFLICT_USERNAME);
                 });
     }
+
+    @Test
+    @DisplayName("loadUserByUsername 실패: 존재하지 않는 이메일로 사용자 로드 시 UsernameNotFoundException이 발생한다.")
+    void shouldThrowUsernameNotFoundExceptionWhenLoadingNonExistentUser() {
+        // given
+        String nonExistentEmail = "nonexistent@ks.ac.kr";
+
+        // when & then
+        assertThatThrownBy(() -> memberService.loadUserByUsername(nonExistentEmail))
+                .isInstanceOf(org.springframework.security.core.userdetails.UsernameNotFoundException.class)
+                .hasMessage("User not found");
+    }
 }

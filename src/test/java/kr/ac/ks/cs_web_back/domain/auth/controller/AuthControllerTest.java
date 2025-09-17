@@ -9,12 +9,15 @@ import kr.ac.ks.cs_web_back.domain.auth.fixture.AuthFixture;
 import kr.ac.ks.cs_web_back.domain.auth.service.AuthService;
 import kr.ac.ks.cs_web_back.global.exeption.domain.NotFoundException;
 import kr.ac.ks.cs_web_back.global.exeption.domain.UnauthorizedException;
+import kr.ac.ks.cs_web_back.global.jwt.JwtTokenResolver;
+import kr.ac.ks.cs_web_back.global.jwt.JwtUtil;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -34,6 +37,15 @@ public class AuthControllerTest {
 
     @MockitoBean
     private AuthService authService;
+
+    @MockitoBean
+    private JwtUtil jwtUtil;
+
+    @MockitoBean
+    private JwtTokenResolver jwtTokenResolver;
+
+    @MockitoBean
+    private UserDetailsService userDetailsService;
 
     @Test
     @DisplayName("로그인 성공: 올바른 이메일과 비밀번호로 로그인 시 200 OK와 토큰을 반환한다.")
@@ -110,14 +122,14 @@ public class AuthControllerTest {
         AuthLoginRequest request = AuthFixture.NonExistentEmailLoginRequest();
 
         when(authService.loginMember(any(AuthLoginRequest.class)))
-                .thenThrow(new NotFoundException(AuthExceptionCode.NOT_FOUND_USER));
+                .thenThrow(new NotFoundException(AuthExceptionCode.UNAUTHORIZED_FAILED_VALIDATION));
 
         // when & then
         mockMvc.perform(post("/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.code").value(AuthExceptionCode.NOT_FOUND_USER.getCode()))
-                .andExpect(jsonPath("$.message").value(AuthExceptionCode.NOT_FOUND_USER.getMessage()));
+                .andExpect(jsonPath("$.code").value(AuthExceptionCode.UNAUTHORIZED_FAILED_VALIDATION.getCode()))
+                .andExpect(jsonPath("$.message").value(AuthExceptionCode.UNAUTHORIZED_FAILED_VALIDATION.getMessage()));
     }
 }

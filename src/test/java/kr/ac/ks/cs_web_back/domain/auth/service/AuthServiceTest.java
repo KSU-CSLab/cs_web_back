@@ -86,7 +86,7 @@ public class AuthServiceTest {
                 .isInstanceOf(NotFoundException.class)
                 .satisfies(e -> {
                     NotFoundException exception = (NotFoundException) e;
-                    assertThat(exception.getExceptionCode()).isEqualTo(AuthExceptionCode.NOT_FOUND_USER);
+                    assertThat(exception.getExceptionCode()).isEqualTo(AuthExceptionCode.UNAUTHORIZED_FAILED_VALIDATION);
                 });
     }
 }

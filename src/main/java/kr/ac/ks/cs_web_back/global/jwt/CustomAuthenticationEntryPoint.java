@@ -3,7 +3,7 @@ package kr.ac.ks.cs_web_back.global.jwt;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import kr.ac.ks.cs_web_back.global.exeption.GlobalExceptionCode;
+import kr.ac.ks.cs_web_back.domain.auth.controller.code.AuthExceptionCode;
 import kr.ac.ks.cs_web_back.global.exeption.dto.ExceptionResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -25,7 +25,7 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
             HttpServletResponse response,
             AuthenticationException authException
     ) throws IOException {
-        final GlobalExceptionCode responseCode = GlobalExceptionCode.UNAUTHORIZED_NO_TOKEN;
+        final AuthExceptionCode responseCode = AuthExceptionCode.UNAUTHORIZED_INVALID_TOKEN;
 
         response.setCharacterEncoding("UTF-8");
         response.setStatus(HttpStatus.UNAUTHORIZED.value());

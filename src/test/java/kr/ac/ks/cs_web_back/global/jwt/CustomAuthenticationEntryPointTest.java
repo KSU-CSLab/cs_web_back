@@ -1,35 +1,73 @@
 package kr.ac.ks.cs_web_back.global.jwt;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import kr.ac.ks.cs_web_back.domain.auth.controller.code.AuthExceptionCode;
-import kr.ac.ks.cs_web_back.global.config.SecurityConfig;
+import kr.ac.ks.cs_web_back.global.exeption.dto.ExceptionResponse;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
-import org.springframework.test.web.servlet.MockMvc;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Spy;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.AuthenticationException;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@AutoConfigureMockMvc
-@Import({SecurityConfig.class, CustomAuthenticationEntryPoint.class})
-public class CustomAuthenticationEntryPointTest {
+import static org.mockito.Mockito.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
-    @Autowired
-    private MockMvc mockMvc;
+@ExtendWith(MockitoExtension.class)
+class CustomAuthenticationEntryPointTest {
+
+    @InjectMocks
+    private CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+
+    @Mock
+    private HttpServletRequest request;
+
+    @Mock
+    private HttpServletResponse response;
+
+    @Mock
+    private AuthenticationException authException;
+
+    @Spy
+    private ObjectMapper objectMapper = new ObjectMapper();
+    private StringWriter stringWriter;
+    private PrintWriter printWriter;
+
+    @BeforeEach
+    void setUp() throws IOException {
+        stringWriter = new StringWriter();
+        printWriter = new PrintWriter(stringWriter);
+        when(response.getWriter()).thenReturn(printWriter);
+
+    }
 
     @Test
-    @DisplayName("인증되지 않은 사용자가 보호된 리소스에 접근 시 401 Unauthorized 응답을 받는다.")
-    void shouldReturn401UnauthorizedWhenUnauthenticatedAccessToSecuredResource() throws Exception {
-        mockMvc.perform(get("/protected/securedResource"))
-                .andExpect(status().isUnauthorized())
-                .andExpect(content().contentType("application/json;charset=UTF-8"))
-                .andExpect(jsonPath("$.code").value(AuthExceptionCode.UNAUTHORIZED_INVALID_TOKEN.getCode()))
-                .andExpect(jsonPath("$.message").value(AuthExceptionCode.UNAUTHORIZED_INVALID_TOKEN.getMessage()));
+    @DisplayName("commence 메서드 호출 시 401 Unauthorized 응답과 JSON 에러 메시지를 반환한다.")
+    void commenceReturns401UnauthorizedAndJsonError() throws IOException {
+        // Given
+        AuthExceptionCode expectedCode = AuthExceptionCode.UNAUTHORIZED_INVALID_TOKEN;
+        ExceptionResponse expectedResponse = new ExceptionResponse(expectedCode.getCode(), expectedCode.getMessage());
+        String expectedJson = objectMapper.writeValueAsString(expectedResponse);
+
+        // When
+        customAuthenticationEntryPoint.commence(request, response, authException);
+
+        // Then
+        verify(response).setCharacterEncoding("UTF-8");
+        verify(response).setStatus(HttpStatus.UNAUTHORIZED.value());
+        verify(response).setContentType("application/json;charset=UTF-8");
+        verify(response).getWriter();
+        printWriter.flush();
+        assertThat(stringWriter.toString()).isEqualTo(expectedJson);
     }
 }

@@ -3,6 +3,8 @@ package kr.ac.ks.cs_web_back.domain.member.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import kr.ac.ks.cs_web_back.domain.member.dto.request.MemberCreateRequest;
 import kr.ac.ks.cs_web_back.domain.member.service.MemberService;
+import kr.ac.ks.cs_web_back.global.jwt.JwtTokenResolver;
+import kr.ac.ks.cs_web_back.global.jwt.JwtUtil;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +23,12 @@ public class MemberControllerTest {
 
     @MockitoBean
     private MemberService memberService;
+
+    @MockitoBean
+    private JwtUtil jwtUtil;
+
+    @MockitoBean
+    private JwtTokenResolver jwtTokenResolver;
 
     @Autowired
     private MockMvc mockMvc;
@@ -114,12 +122,12 @@ public class MemberControllerTest {
     }
 
     @Test
-    @DisplayName("회원가입 실패: 비밀번호가 24글자를 초과하면 400 BadRequest를 반환한다.")
+    @DisplayName("회원가입 실패: 비밀번호가 48글자 이상이면 400 BadRequest를 반환한다.")
     public void tooLongPasswordReturns400BadRequest() throws Exception {
         // given
         MemberCreateRequest request = new MemberCreateRequest(
                 "invalidEmail",
-                "password".repeat(10),
+                "a".repeat(48),
                 "exampleUser"
         );
 

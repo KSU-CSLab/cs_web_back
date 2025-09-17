@@ -4,8 +4,6 @@ import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.SignatureException;
 import jakarta.annotation.PostConstruct;
 import kr.ac.ks.cs_web_back.domain.auth.controller.code.AuthExceptionCode;
-import kr.ac.ks.cs_web_back.global.exeption.domain.BadRequestException;
-import kr.ac.ks.cs_web_back.global.exeption.domain.NotFoundException;
 import kr.ac.ks.cs_web_back.global.exeption.domain.UnauthorizedException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -55,7 +53,7 @@ public class JwtUtil {
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
             return authorizationHeader.substring(7);
         }
-        throw new UnauthorizedException(AuthExceptionCode.UNAUTHORIZED_TOKEN_FORM);
+        throw new UnauthorizedException(AuthExceptionCode.UNAUTHORIZED_INVALID_TOKEN);
     }
 
     public Claims getClaimsFromToken(String token) {
@@ -65,12 +63,8 @@ public class JwtUtil {
                     .build()
                     .parseClaimsJws(token)
                     .getBody();
-        } catch (ExpiredJwtException e) {
-            throw new UnauthorizedException(AuthExceptionCode.UNAUTHORIZED_EXPIRED_TOKEN);
-        } catch (SignatureException | MalformedJwtException e) {
-            throw new UnauthorizedException(AuthExceptionCode.UNAUTHORIZED_TOKEN_FAILURE);
-        } catch (IllegalArgumentException e) {
-            throw new BadRequestException(AuthExceptionCode.BAD_REQUEST_NO_TOKEN);
+        } catch (ExpiredJwtException | IllegalArgumentException | SignatureException | MalformedJwtException e) {
+            throw new UnauthorizedException(AuthExceptionCode.UNAUTHORIZED_INVALID_TOKEN);
         }
     }
 }

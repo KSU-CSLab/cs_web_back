@@ -5,7 +5,6 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import kr.ac.ks.cs_web_back.global.exeption.GlobalExceptionCode;
 import kr.ac.ks.cs_web_back.global.exeption.domain.InvalidTokenException;
 import kr.ac.ks.cs_web_back.global.exeption.dto.ExceptionResponse;
 import lombok.RequiredArgsConstructor;
@@ -51,8 +50,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             response.setContentType("application/json;charset=UTF-8");
 
             ExceptionResponse exceptionResponse = new ExceptionResponse(
-                    GlobalExceptionCode.UNAUTHORIZED_FAILED_VALIDATION.getCode(),
-                    GlobalExceptionCode.UNAUTHORIZED_FAILED_VALIDATION.getMessage()
+                    e.getExceptionCode().getCode(),
+                    e.getExceptionCode().getMessage()
             );
 
             response.getWriter().write(objectMapper.writeValueAsString(exceptionResponse));

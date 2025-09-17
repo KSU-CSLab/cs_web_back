@@ -1,12 +1,8 @@
 package kr.ac.ks.cs_web_back.global.jwt;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import jakarta.annotation.PostConstruct;
 import kr.ac.ks.cs_web_back.domain.auth.controller.code.AuthExceptionCode;
-import kr.ac.ks.cs_web_back.global.exeption.GlobalExceptionCode;
 import kr.ac.ks.cs_web_back.global.exeption.domain.InvalidTokenException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -62,12 +58,16 @@ public class JwtUtil {
         return claims.getSubject();
     }
 
-    public boolean validateToken(String token) {
+    public void validateToken(String token) {
         try {
-            Jwts.parserBuilder().setSigningKey(hmacKey).build().parseClaimsJws(token);
-            return true;
+            Jwts.parserBuilder()
+                    .setSigningKey(hmacKey)
+                    .build()
+                    .parseClaimsJws(token);
+        } catch (ExpiredJwtException e) {
+            throw new InvalidTokenException(AuthExceptionCode.UNAUTHORIZED_FAILED_VALIDATION);
         } catch (JwtException | IllegalArgumentException e) {
-            throw new InvalidTokenException(GlobalExceptionCode.UNAUTHORIZED_INVALID_TOKEN);
+            throw new InvalidTokenException(AuthExceptionCode.UNAUTHORIZED_INVALID_TOKEN);
         }
     }
 }

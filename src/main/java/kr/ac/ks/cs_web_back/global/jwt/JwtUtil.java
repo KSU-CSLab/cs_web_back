@@ -68,6 +68,4 @@ public class JwtUtil {
             throw new InvalidTokenException(AuthExceptionCode.UNAUTHORIZED_FAILED_VALIDATION);
         } catch (JwtException | IllegalArgumentException e) {
             throw new InvalidTokenException(AuthExceptionCode.UNAUTHORIZED_INVALID_TOKEN);
-        }
-    }
 }

@@ -4,6 +4,7 @@ import io.jsonwebtoken.*;
 import jakarta.annotation.PostConstruct;
 import kr.ac.ks.cs_web_back.domain.auth.controller.code.AuthExceptionCode;
 import kr.ac.ks.cs_web_back.global.exeption.domain.InvalidTokenException;
+import kr.ac.ks.cs_web_back.global.exeption.domain.UnauthorizedException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -68,4 +69,8 @@ public class JwtUtil {
             throw new InvalidTokenException(AuthExceptionCode.UNAUTHORIZED_FAILED_VALIDATION);
         } catch (JwtException | IllegalArgumentException e) {
             throw new InvalidTokenException(AuthExceptionCode.UNAUTHORIZED_INVALID_TOKEN);
+        } catch (ExpiredJwtException | IllegalArgumentException | SignatureException | MalformedJwtException e) {
+            throw new UnauthorizedException(AuthExceptionCode.UNAUTHORIZED_INVALID_TOKEN);
+        }
+    }
 }

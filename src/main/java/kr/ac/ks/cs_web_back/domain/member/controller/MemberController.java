@@ -26,10 +26,10 @@ public class MemberController implements SpringDocMemberController {
         return CsResponse.of(MemberSuccessCode.GENERATED_REGISTERED, id);
     }
 
-    @GetMapping("/profile")
+    @GetMapping("/profile/{userid}")
     public CsResponse<MemberResponse> getMemberInfo(
             @RequestHeader("Authorization") String token,
-            @RequestParam("userid") Long userId
+            @PathVariable("userid") Long userId
     ) {
         MemberResponse response = memberService.getMemberInfo(userId);
         return CsResponse.of(MemberSuccessCode.OK_FOUND_USER_PROFILE, response);

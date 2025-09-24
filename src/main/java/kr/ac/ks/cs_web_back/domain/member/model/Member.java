@@ -10,12 +10,9 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
-<<<<<<< HEAD
 import java.util.Collection;
 import java.util.Collections;
-=======
 import java.time.LocalDateTime;
->>>>>>> 65597fa (컨트롤러 & dto & 서비스 구현 feat/#9)
 
 @Entity
 @Getter
@@ -56,7 +53,6 @@ public class Member extends BaseEntity implements UserDetails {
         this.number = number;
     }
 
-<<<<<<< HEAD
     public String getNickname() {
         return username;
     }
@@ -69,10 +65,10 @@ public class Member extends BaseEntity implements UserDetails {
     @Override
     public String getUsername() {
         return email;
-=======
+    }
+
     public void withdrawNow(){
         this.isWithdrawn = true;
         this.deletedAt = LocalDateTime.now();
->>>>>>> 65597fa (컨트롤러 & dto & 서비스 구현 feat/#9)
     }
 }

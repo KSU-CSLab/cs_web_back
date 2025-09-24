@@ -6,6 +6,8 @@ import kr.ac.ks.cs_web_back.domain.member.dto.request.MemberWithdrawalRequest;
 import kr.ac.ks.cs_web_back.domain.member.model.Member;
 import kr.ac.ks.cs_web_back.domain.member.repository.MemberRepository;
 import kr.ac.ks.cs_web_back.global.exeption.domain.ConflictException;
+import kr.ac.ks.cs_web_back.global.exeption.domain.NotFoundException;
+import kr.ac.ks.cs_web_back.global.exeption.domain.UnauthorizedException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -42,7 +44,16 @@ public class MemberService implements UserDetailsService {
 
     public Long withdraw(MemberWithdrawalRequest request) {
         Member member = memberRepository.findById(request.username())
-                .orElseThrow(() -> new )
+                .orElseThrow(() -> new NotFoundException(MemberExceptionCode.NOT_FOUND_USER));
+
+        if (!passwordEncoder.matches(request.password(),member.getPassword())) {
+            throw new UnauthorizedException(MemberExceptionCode.UNAUTHORIZED_PASSWORD);
+        }
+
+        member.withdrawNow();
+        memberRepository.save(member);
+
+        return member.getId();
     }
 
     @Override

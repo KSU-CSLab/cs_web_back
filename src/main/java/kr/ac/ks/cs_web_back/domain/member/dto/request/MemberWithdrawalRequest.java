@@ -14,4 +14,6 @@ public record MemberWithdrawalRequest(
         @NotBlank(message = "비밀번호가 입력되지 않았습니다.")
         String password
 ){
+        public Long username() {
+        }
 }

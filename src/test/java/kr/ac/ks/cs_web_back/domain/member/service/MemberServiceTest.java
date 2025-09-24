@@ -2,6 +2,7 @@ package kr.ac.ks.cs_web_back.domain.member.service;
 
 import kr.ac.ks.cs_web_back.domain.member.controller.code.MemberExceptionCode;
 import kr.ac.ks.cs_web_back.domain.member.dto.request.MemberCreateRequest;
+import kr.ac.ks.cs_web_back.domain.member.fixture.MemberFixture;
 import kr.ac.ks.cs_web_back.domain.member.model.Member;
 import kr.ac.ks.cs_web_back.domain.member.repository.MemberRepository;
 import kr.ac.ks.cs_web_back.global.exeption.domain.ConflictException;
@@ -12,6 +13,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Collection;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -101,6 +104,21 @@ public class MemberServiceTest {
                     ConflictException e = (ConflictException) exception;
                     assertThat(e.getExceptionCode()).isEqualTo(MemberExceptionCode.CONFLICT_USERNAME);
                 });
+    }
+
+    @Test
+    @DisplayName("회원탈퇴 성공: 멤버 객체를 삭제한다.")
+    void shouldDeleteMember() {
+        // givent
+        Member member = MemberFixture.memberFixture();
+        memberRepository.saveAndFlush(member);
+
+        // when
+        memberService.deleteMember(member);
+
+        // then
+        Collection<Member> members = memberRepository.findAll();
+        assertThat(members).hasSize(0);
     }
 
     @Test

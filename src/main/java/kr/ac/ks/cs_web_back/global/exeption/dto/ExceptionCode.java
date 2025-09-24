@@ -4,3 +4,4 @@ public interface ExceptionCode {
     int getCode();
     String getMessage();
 }
+

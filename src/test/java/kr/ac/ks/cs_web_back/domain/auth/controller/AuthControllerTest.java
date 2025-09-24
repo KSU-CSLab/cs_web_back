@@ -7,11 +7,13 @@ import kr.ac.ks.cs_web_back.domain.auth.dto.request.AuthLoginRequest;
 import kr.ac.ks.cs_web_back.domain.auth.dto.response.AuthLoginResponse;
 import kr.ac.ks.cs_web_back.domain.auth.fixture.AuthFixture;
 import kr.ac.ks.cs_web_back.domain.auth.service.AuthService;
+import kr.ac.ks.cs_web_back.global.exeption.domain.InvalidTokenException;
 import kr.ac.ks.cs_web_back.global.exeption.domain.NotFoundException;
 import kr.ac.ks.cs_web_back.global.exeption.domain.UnauthorizedException;
 import kr.ac.ks.cs_web_back.global.jwt.JwtTokenResolver;
 import kr.ac.ks.cs_web_back.global.jwt.JwtUtil;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
@@ -22,6 +24,8 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -85,7 +89,7 @@ public class AuthControllerTest {
     }
 
     @Test
-    @DisplayName("로그인 실패: 요청 본문에 이메일이 없으면 400 Bad Request를 반홚나다.")
+    @DisplayName("로그인 실패: 요청 본문에 이메일이 없으면 400 Bad Request를 반환한다.")
     void loginWithoutEmailReturns400BadRequest() throws Exception {
         // given
         AuthLoginRequest request = new AuthLoginRequest("", "examplePassword1234!");
@@ -131,5 +135,65 @@ public class AuthControllerTest {
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.code").value(AuthExceptionCode.UNAUTHORIZED_FAILED_VALIDATION.getCode()))
                 .andExpect(jsonPath("$.message").value(AuthExceptionCode.UNAUTHORIZED_FAILED_VALIDATION.getMessage()));
+    }
+
+    @Nested
+    @DisplayName("로그아웃 API 테스트")
+    class LogoutTest {
+        final String authorization = "Bearer valid-fake-access-token";
+        @Test
+        @DisplayName("로그아웃 성공: 유효한 토큰으로 로그아웃 시 200 OK를 반환한다.")
+        void logoutSuccessReturns200Ok() throws Exception {
+            // given
+            // void 반환하니, 예외 없으면 성공으로 간주
+            // when & then
+            mockMvc.perform(post("/auth/logout")
+                            .header("Authorization", authorization))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.code").value(AuthSuccessCode.LOGOUT_SUCCESS.getCode()))
+                    .andExpect(jsonPath("$.message").value(AuthSuccessCode.LOGOUT_SUCCESS.getMessage()));
+        }
+
+        @Test
+        @DisplayName("로그아웃 실패: Authorization 헤더가 없으면 400 Bad Request를 반환한다.")
+        void logoutWithoutTokenReturns400BadRequest() throws Exception {
+            // given
+            // 헤더 없이 요청을 보냄
+            // when & then
+            mockMvc.perform(post("/auth/logout"))
+                    .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        @DisplayName("로그아웃 실패: 유효하지 않은 토큰이면 401 Unauthorized를 반환한다.")
+        void logoutWithInvalidTokenReturns401() throws Exception {
+            // 토큰이 물리적으로 유효하지 않은 모든 경우 (서명불일치, 형식 오류)
+            // given
+            // 가짜 Authservice가 InvalidTokenException을 던지도록 설정
+            doThrow(new InvalidTokenException(AuthExceptionCode.UNAUTHORIZED_INVALID_TOKEN))
+                    .when(authService).logout(anyString());
+
+            // when & then
+            mockMvc.perform(post("/auth/logout")
+                        .header("Authorization", authorization))
+                    .andExpect(status().isUnauthorized())
+                    .andExpect(jsonPath("$.code").value(AuthExceptionCode.UNAUTHORIZED_INVALID_TOKEN.getCode()))
+                    .andExpect(jsonPath("$.message").value(AuthExceptionCode.UNAUTHORIZED_INVALID_TOKEN.getMessage()));
+        }
+
+        @Test
+        @DisplayName("로그아웃 실패: 이미 로그아웃/만료된 토큰이면 401 Unauthorized를 반환한다.")
+        void logoutWithAlreadyLoggedOutTokenReturns401() throws Exception {
+            // given
+            doThrow(new InvalidTokenException(AuthExceptionCode.UNAUTHORIZED_FAILED_VALIDATION))
+                    .when(authService).logout(anyString());
+
+            // when & then
+            mockMvc.perform(post("/auth/logout")
+                            .header("Authorization", authorization))
+                    .andExpect(status().isUnauthorized())
+                    .andExpect(jsonPath("$.code").value(AuthExceptionCode.UNAUTHORIZED_FAILED_VALIDATION.getCode()))
+                    .andExpect(jsonPath("$.message").value(AuthExceptionCode.UNAUTHORIZED_FAILED_VALIDATION.getMessage()));
+        }
     }
 }

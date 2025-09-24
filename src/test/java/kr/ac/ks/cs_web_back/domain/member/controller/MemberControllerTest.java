@@ -2,9 +2,12 @@ package kr.ac.ks.cs_web_back.domain.member.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import kr.ac.ks.cs_web_back.domain.member.dto.request.MemberCreateRequest;
+import kr.ac.ks.cs_web_back.domain.member.fixture.MemberFixture;
+import kr.ac.ks.cs_web_back.domain.member.model.Member;
 import kr.ac.ks.cs_web_back.domain.member.service.MemberService;
 import kr.ac.ks.cs_web_back.global.jwt.JwtTokenResolver;
 import kr.ac.ks.cs_web_back.global.jwt.JwtUtil;
+import kr.ac.ks.cs_web_back.global.resolver.IdentifiedUserArgumentResolver;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +16,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doNothing;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -29,6 +35,9 @@ public class MemberControllerTest {
 
     @MockitoBean
     private JwtTokenResolver jwtTokenResolver;
+
+    @MockitoBean
+    private IdentifiedUserArgumentResolver identifiedUserArgumentResolver;
 
     @Autowired
     private MockMvc mockMvc;
@@ -155,5 +164,19 @@ public class MemberControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
+    @Test
+    @DisplayName("회원탈퇴 성공: 회원 탈퇴에 성공하면 200 Ok를 반환한다.")
+    public void withdrawalSuccessfullyReturns200Ok() throws Exception {
+        // given
+        String token = "Bearer valid-access-token";
+        Member member = MemberFixture.memberFixture();
 
+        given(identifiedUserArgumentResolver.resolveArgument(any(), any(), any(), any())).willReturn(member);
+        doNothing().when(memberService).deleteMember(member);
+
+        // when & then
+        mockMvc.perform(post("/member/withdrawal")
+                        .header("Authorization", token))
+                .andExpect(status().isOk());
+    }
 }

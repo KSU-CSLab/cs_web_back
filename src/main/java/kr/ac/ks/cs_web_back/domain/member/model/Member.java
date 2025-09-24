@@ -37,13 +37,6 @@ public class Member extends BaseEntity implements UserDetails {
     @Column
     private String number;
 
-    @Column(name = "is_withdrawn", nullable = false)
-    private boolean isWithdrawn;
-
-    @Column(name = "deleted_at")
-    private LocalDateTime deletedAt;
-
-
     @Builder
     private Member(String email,  String password, String username, LocalDate birthdate, String number) {
         this.email = email;
@@ -65,10 +58,5 @@ public class Member extends BaseEntity implements UserDetails {
     @Override
     public String getUsername() {
         return email;
-    }
-
-    public void withdrawNow(){
-        this.isWithdrawn = true;
-        this.deletedAt = LocalDateTime.now();
     }
 }

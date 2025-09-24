@@ -1,13 +1,14 @@
 package kr.ac.ks.cs_web_back.domain.auth.service;
 
-import io.jsonwebtoken.Claims;
 import kr.ac.ks.cs_web_back.domain.auth.controller.code.AuthExceptionCode;
 import kr.ac.ks.cs_web_back.domain.auth.dto.request.AuthLoginRequest;
 import kr.ac.ks.cs_web_back.domain.auth.dto.response.AuthLoginResponse;
 import kr.ac.ks.cs_web_back.domain.member.model.Member;
 import kr.ac.ks.cs_web_back.domain.member.repository.MemberRepository;
+import kr.ac.ks.cs_web_back.global.exeption.domain.InvalidTokenException;
 import kr.ac.ks.cs_web_back.global.exeption.domain.NotFoundException;
 import kr.ac.ks.cs_web_back.global.exeption.domain.UnauthorizedException;
+import kr.ac.ks.cs_web_back.global.jwt.JwtTokenResolver;
 import kr.ac.ks.cs_web_back.global.jwt.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -15,6 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -37,17 +39,36 @@ public class AuthService {
         String accessToken = jwtUtil.generateAccessToken(member.getEmail());
         String refreshToken = jwtUtil.generateRefreshToken(member.getEmail());
 
+        Date refreshTokenExpiration = jwtUtil.getExpirationDateFromToken(refreshToken);
+        long remainingTime = refreshTokenExpiration.getTime() - System.currentTimeMillis();
+
+        redisTemplate.opsForValue().set(
+                "RT:"+ member.getEmail(),
+                refreshToken,
+                remainingTime,
+                TimeUnit.MILLISECONDS
+        );
+
         return AuthLoginResponse.builder()
                 .authorization(accessToken)
                 .authorizationRefresh(refreshToken)
                 .build();
     }
     public void logout(String authorizationHeader) {
-        String accessToken = jwtUtil.resolveToken(authorizationHeader);
-        Claims claims = jwtUtil.getClaimsFromToken(accessToken);
+        String accessToken = new JwtTokenResolver().resolveToken(authorizationHeader);
+        jwtUtil.validateToken(accessToken);
+        String email = jwtUtil.getEmailFromToken(accessToken);
 
-        long expirationTime = claims.getExpiration().getTime();
-        long remainingTime = expirationTime - System.currentTimeMillis();
+        if (redisTemplate.opsForValue().get(accessToken) != null) {
+            throw new InvalidTokenException(AuthExceptionCode.UNAUTHORIZED_FAILED_VALIDATION);
+        }
+
+        if (redisTemplate.opsForValue().get("RT:"+email) != null) {
+            redisTemplate.delete("RT:"+email);
+        }
+
+        Date expirationTime = jwtUtil.getExpirationDateFromToken(accessToken);
+        long remainingTime = expirationTime.getTime() - System.currentTimeMillis();
         if (remainingTime > 0) {
             redisTemplate.opsForValue().set(
                     accessToken,

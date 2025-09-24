@@ -26,7 +26,7 @@ public class AuthController implements SpringDocAuthController{
     @PostMapping("/logout")
     public CsResponse<Void> logout (
             @Valid @RequestHeader("Authorization") String authorizationHeader
-    ) {
+            ) {
         authService.logout(authorizationHeader);
         return CsResponse.of(AuthSuccessCode.LOGOUT_SUCCESS);
     }

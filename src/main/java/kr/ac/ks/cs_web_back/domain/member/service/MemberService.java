@@ -39,6 +39,10 @@ public class MemberService implements UserDetailsService {
         return memberRepository.save(member).getId();
     }
 
+    public void deleteMember(Member member) {
+        memberRepository.delete(member);
+    }
+
     @Override
     @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {

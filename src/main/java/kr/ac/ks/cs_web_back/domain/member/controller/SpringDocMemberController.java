@@ -1,9 +1,12 @@
 package kr.ac.ks.cs_web_back.domain.member.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import kr.ac.ks.cs_web_back.domain.member.dto.request.MemberCreateRequest;
+import kr.ac.ks.cs_web_back.domain.member.model.Member;
+import kr.ac.ks.cs_web_back.global.annotation.IdentifiedUser;
 import kr.ac.ks.cs_web_back.global.response.CsResponse;
 import kr.ac.ks.cs_web_back.global.swagger.error.ApiErrorResponse;
 import kr.ac.ks.cs_web_back.global.swagger.error.ErrorCase;
@@ -26,5 +29,15 @@ public interface SpringDocMemberController {
     })
     CsResponse<Long> register(
             @RequestBody MemberCreateRequest request
+    );
+
+    @Operation(summary = "회원탈퇴", description = "회원 탈퇴")
+    @ApiResponse(responseCode = "200", description = "회원 탈퇴에 성공했습니다.")
+    @ApiErrorResponse(status = HttpStatus.UNAUTHORIZED, instance = "/member/withdrawal", errorCases = {
+            @ErrorCase(description = "토큰 형식 이상", code = 8001, exampleMessage = "유효하지 않은 토큰입니다."),
+            @ErrorCase(description = "인증 실패 (토큰 만료 혹은 틀린 이메일 / 비밀번호)", code = 8002, exampleMessage = "인증에 실패했습니다.")
+    })
+    CsResponse<Void> withdraw(
+            @Parameter(hidden = true) @IdentifiedUser Member member
     );
 }

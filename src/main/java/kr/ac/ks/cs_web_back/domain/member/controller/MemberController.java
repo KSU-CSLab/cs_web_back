@@ -26,9 +26,10 @@ public class MemberController implements SpringDocMemberController {
         Long id = memberService.createMember(request);
         return CsResponse.of(MemberSuccessCode.GENERATED_REGISTERED, id);
     }
+
     @PostMapping("/withdrawal")
     @ResponseStatus(HttpStatus.OK)
-    public CsResponse<Long> withdraw(
+    public CsResponse<Void> withdraw(
             @IdentifiedUser Member member
     ) {
         memberService.deleteMember(member);

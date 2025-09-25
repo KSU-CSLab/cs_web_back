@@ -201,5 +201,23 @@ public class AuthServiceTest {
                         assertThat(exception.getExceptionCode()).isEqualTo(AuthExceptionCode.UNAUTHORIZED_INVALID_TOKEN);
                     });
         }
+
+        @Test
+        @DisplayName("로그아웃 실패: 토큰은 유효하지만 DB에 사용자가 없는 경우 InvalidTokenException이 발생한다.")
+        void logoutFailWhenUserNotInDB() {
+            // given
+            String accessToken = jwtUtil.generateAccessToken(testMember.getEmail());
+            String authorizationHeader = "Bearer " + accessToken;
+
+            memberRepository.delete(testMember);
+
+            // when & then
+            assertThatThrownBy(() -> authService.logout(authorizationHeader))
+                    .isInstanceOf(InvalidTokenException.class)
+                    .satisfies(e -> {
+                       InvalidTokenException exception = (InvalidTokenException) e;
+                       assertThat(exception.getExceptionCode()).isEqualTo(AuthExceptionCode.UNAUTHORIZED_FAILED_VALIDATION);
+                    });
+        }
     }
 }

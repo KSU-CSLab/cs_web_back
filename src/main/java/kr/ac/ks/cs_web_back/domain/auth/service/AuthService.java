@@ -39,7 +39,7 @@ public class AuthService {
         String accessToken = jwtUtil.generateAccessToken(member.getEmail());
         String refreshToken = jwtUtil.generateRefreshToken(member.getEmail());
 
-        Date refreshTokenExpiration = jwtUtil.getExpirationDateFromToken(refreshToken);
+        Date refreshTokenExpiration = jwtUtil.getExpirationDateFromRefreshToken(refreshToken);
         long remainingTime = refreshTokenExpiration.getTime() - System.currentTimeMillis();
 
         redisTemplate.opsForValue().set(
@@ -57,7 +57,7 @@ public class AuthService {
     public void logout(String authorizationHeader) {
         String accessToken = new JwtTokenResolver().resolveToken(authorizationHeader);
         jwtUtil.validateToken(accessToken);
-        String email = jwtUtil.getEmailFromToken(accessToken);
+        String email = jwtUtil.getEmailFromAccessToken(accessToken);
 
         if (redisTemplate.opsForValue().get(accessToken) != null) {
             throw new InvalidTokenException(AuthExceptionCode.UNAUTHORIZED_FAILED_VALIDATION);
@@ -67,15 +67,13 @@ public class AuthService {
             redisTemplate.delete("RT:"+email);
         }
 
-        Date expirationTime = jwtUtil.getExpirationDateFromToken(accessToken);
+        Date expirationTime = jwtUtil.getExpirationDateFromAccessToken(accessToken);
         long remainingTime = expirationTime.getTime() - System.currentTimeMillis();
-        if (remainingTime > 0) {
-            redisTemplate.opsForValue().set(
-                    accessToken,
-                    "logout",
-                    remainingTime,
-                    TimeUnit.MILLISECONDS
-            );
-        }
+        redisTemplate.opsForValue().set(
+                accessToken,
+                "logout",
+                remainingTime,
+                TimeUnit.MILLISECONDS
+        );
     }
 }

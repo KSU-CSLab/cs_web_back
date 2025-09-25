@@ -12,10 +12,7 @@ import kr.ac.ks.cs_web_back.global.exeption.domain.InvalidTokenException;
 import kr.ac.ks.cs_web_back.global.exeption.domain.NotFoundException;
 import kr.ac.ks.cs_web_back.global.exeption.domain.UnauthorizedException;
 import kr.ac.ks.cs_web_back.global.jwt.JwtUtil;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -53,7 +50,7 @@ public class AuthServiceTest {
         Member memberFixture = MemberFixture.memberFixture();
         String rawPassword = "examplePassword1234!";
         String encodedPassword = passwordEncoder.encode(rawPassword);
-        memberRepository.save(Member.builder()
+        this.testMember = memberRepository.save(Member.builder()
                 .email(memberFixture.getEmail())
                 .password(encodedPassword)
                 .username(memberFixture.getUsername())
@@ -134,6 +131,20 @@ public class AuthServiceTest {
 
             String accessInRedis = redisTemplate.opsForValue().get(accessToken);
             assertThat(accessInRedis).isEqualTo("logout");
+        }
+
+        @Test
+        @DisplayName("로그아웃 성공: Redis에 refreshToken이 없어도 로그아웃 시 200 OK를 반환한다.")
+        void shouldLogoutSuccessfullyWithoutRefreshToken() {
+            // given
+            String accessToken = jwtUtil.generateAccessToken(testMember.getEmail());
+            String authorizationHeader = "Bearer " + accessToken;
+
+            // when
+            Assertions.assertDoesNotThrow(() -> authService.logout(authorizationHeader));
+
+            String blacklisted = redisTemplate.opsForValue().get(accessToken);
+            assertThat(blacklisted).isEqualTo("logout");
         }
 
         @Test

@@ -17,4 +17,10 @@ public class JwtTokenResolver {
         return null;
     }
 
+    public String resolveToken(String authorizationHeader) {
+        if(StringUtils.hasText(authorizationHeader) && authorizationHeader.startsWith(HEADER_PREFIX))
+            return authorizationHeader.substring(HEADER_PREFIX.length());
+
+        return null;
+    }
 }

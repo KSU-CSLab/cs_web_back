@@ -59,6 +59,9 @@ public class AuthService {
         jwtUtil.validateToken(accessToken);
         String email = jwtUtil.getEmailFromAccessToken(accessToken);
 
+        memberRepository.findByEmail(email)
+                .orElseThrow(() -> new InvalidTokenException(AuthExceptionCode.UNAUTHORIZED_FAILED_VALIDATION));
+
         if (redisTemplate.opsForValue().get(accessToken) != null) {
             throw new InvalidTokenException(AuthExceptionCode.UNAUTHORIZED_FAILED_VALIDATION);
         }

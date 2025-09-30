@@ -1,7 +1,6 @@
 package kr.ac.ks.cs_web_back.domain.member.service;
 
 import kr.ac.ks.cs_web_back.domain.member.controller.code.MemberExceptionCode;
-import kr.ac.ks.cs_web_back.domain.member.dto.request.MemberCreateRequest;
 import kr.ac.ks.cs_web_back.domain.member.dto.response.MemberResponse;
 import kr.ac.ks.cs_web_back.domain.member.model.Member;
 import kr.ac.ks.cs_web_back.domain.member.repository.MemberRepository;
@@ -21,23 +20,6 @@ public class MemberService implements UserDetailsService {
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public Long createMember(MemberCreateRequest request) {
-        if (memberRepository.existsByEmail(request.email()))
-            throw new ConflictException(MemberExceptionCode.CONFLICT_EMAIL);
-
-        if (memberRepository.existsByUsername(request.username()))
-            throw new ConflictException(MemberExceptionCode.CONFLICT_USERNAME);
-
-        String encodedPassword = passwordEncoder.encode(request.password());
-
-        Member member = Member.builder()
-                .email(request.email())
-                .password(encodedPassword)
-                .username(request.username())
-                .build();
-
-        return memberRepository.save(member).getId();
-    }
 
     @Transactional(readOnly = true)
     public MemberResponse getMemberInfo(Long id) {

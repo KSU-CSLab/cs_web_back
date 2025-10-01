@@ -26,8 +26,11 @@ public class AuthService {
 
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JwtUtil jwtUtil;
     private final RedisTemplate<String, String> redisTemplate;
+    private final JwtUtil jwtUtil;
+    private final JwtTokenResolver jwtTokenResolver;
+    private final JwtBlackListService jwtBlackListService;
+
 
     public AuthLoginResponse loginMember(AuthLoginRequest request) {
         Member member = memberRepository.findByEmail(request.email())
@@ -54,29 +57,17 @@ public class AuthService {
                 .authorizationRefresh(refreshToken)
                 .build();
     }
-    public void logout(String authorizationHeader) {
-        String accessToken = new JwtTokenResolver().resolveToken(authorizationHeader);
-        jwtUtil.validateToken(accessToken);
-        String email = jwtUtil.getEmailFromAccessToken(accessToken);
+    public void logout(String authorization, String email) {
+        String resolvedAccessToken = jwtTokenResolver.resolveToken(authorization);
 
-        memberRepository.findByEmail(email)
-                .orElseThrow(() -> new InvalidTokenException(AuthExceptionCode.UNAUTHORIZED_FAILED_VALIDATION));
-
-        if (redisTemplate.opsForValue().get(accessToken) != null) {
+        if (jwtBlackListService.isBlackListed(resolvedAccessToken))
             throw new InvalidTokenException(AuthExceptionCode.UNAUTHORIZED_FAILED_VALIDATION);
-        }
 
-        if (redisTemplate.opsForValue().get("RT:"+email) != null) {
+        if (redisTemplate.opsForValue().get("RT:"+email) != null)
             redisTemplate.delete("RT:"+email);
-        }
 
-        Date expirationTime = jwtUtil.getExpirationDateFromAccessToken(accessToken);
+        Date expirationTime = jwtUtil.getExpirationDateFromAccessToken(resolvedAccessToken);
         long remainingTime = expirationTime.getTime() - System.currentTimeMillis();
-        redisTemplate.opsForValue().set(
-                accessToken,
-                "logout",
-                remainingTime,
-                TimeUnit.MILLISECONDS
-        );
+        jwtBlackListService.blacklist(resolvedAccessToken, remainingTime);
     }
 }

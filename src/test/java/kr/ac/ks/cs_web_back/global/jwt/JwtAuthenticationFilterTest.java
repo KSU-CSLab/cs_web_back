@@ -38,7 +38,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 public class JwtAuthenticationFilterTest {
 
-    @Value("${jwt.secret}")
+    @Value("${jwt.accessSecret}")
     private String secret;
 
     @Autowired

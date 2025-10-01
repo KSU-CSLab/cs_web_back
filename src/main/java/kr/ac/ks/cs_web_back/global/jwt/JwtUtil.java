@@ -14,8 +14,11 @@ import java.util.Date;
 
 @Component
 public class JwtUtil {
-    @Value("${jwt.secret}")
-    private String secret;
+    @Value("${jwt.accessSecret}")
+    private String aSecret;
+
+    @Value("${jwt.refreshSecret}")
+    private String rSecret;
 
     @Value("${jwt.accessTokenExpireTime}")
     private Long accessTokenExpireTime;
@@ -23,45 +26,64 @@ public class JwtUtil {
     @Value("${jwt.refreshTokenExpireTime}")
     private Long refreshTokenExpireTime;
 
-    private Key hmacKey;
+    private Key hmacAccessKey;
+    private Key hmacRefreshKey;
 
     @PostConstruct
     public void init() {
-        byte[] decodedKey = Base64.getDecoder().decode(secret);
-        this.hmacKey = new SecretKeySpec(decodedKey, SignatureAlgorithm.HS256.getJcaName());
-    }
-    public String generateAccessToken(String email) {
-        return generateToken(email, accessTokenExpireTime);
+        byte[] accessDecodedKey = Base64.getDecoder().decode(aSecret);
+        this.hmacAccessKey = new SecretKeySpec(accessDecodedKey, SignatureAlgorithm.HS256.getJcaName());
+
+        byte[] refreshDecodedKey = Base64.getDecoder().decode(rSecret);
+        this.hmacRefreshKey = new SecretKeySpec(refreshDecodedKey, SignatureAlgorithm.HS256.getJcaName());
     }
 
-    public String generateRefreshToken(String email) {
-        return generateToken(email, refreshTokenExpireTime);
-    }
-
-    private String generateToken(String email, Long expireTime) {
+    private String generateToken(String email, Long expireTime, Key key) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + expireTime);
         return Jwts.builder().setSubject(email)
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
-                .signWith(hmacKey)
+                .signWith(key)
                 .compact();
     }
 
-    public String getEmailFromToken(String token) {
-        Claims claims = Jwts.parserBuilder()
-                .setSigningKey(hmacKey)
+    public String generateAccessToken(String email) {
+        return generateToken(email, accessTokenExpireTime, hmacAccessKey);
+    }
+
+    public String generateRefreshToken(String email) {
+        return generateToken(email, refreshTokenExpireTime, hmacRefreshKey);
+    }
+
+    public String generateTestToken(String email, Long expireTime) {
+        return generateToken(email, expireTime, hmacAccessKey);
+    }
+
+    private Claims getAllClaimsFromToken(String token, Key key) {
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
+    }
 
-        return claims.getSubject();
+    public Date getExpirationDateFromAccessToken(String token) {
+        return getAllClaimsFromToken(token, hmacAccessKey).getExpiration();
+    }
+
+    public Date getExpirationDateFromRefreshToken(String token) {
+        return getAllClaimsFromToken(token, hmacRefreshKey).getExpiration();
+    }
+
+    public String getEmailFromAccessToken(String token) {
+        return getAllClaimsFromToken(token, hmacAccessKey).getSubject();
     }
 
     public void validateToken(String token) {
         try {
             Jwts.parserBuilder()
-                    .setSigningKey(hmacKey)
+                    .setSigningKey(hmacAccessKey)
                     .build()
                     .parseClaimsJws(token);
         } catch (ExpiredJwtException e) {

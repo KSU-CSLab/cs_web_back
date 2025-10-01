@@ -7,6 +7,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import kr.ac.ks.cs_web_back.domain.auth.dto.request.AuthLoginRequest;
 import kr.ac.ks.cs_web_back.domain.auth.dto.response.AuthLoginResponse;
+import kr.ac.ks.cs_web_back.domain.member.model.Member;
+import kr.ac.ks.cs_web_back.global.annotation.IdentifiedUser;
 import kr.ac.ks.cs_web_back.global.response.CsResponse;
 import kr.ac.ks.cs_web_back.global.swagger.error.ApiErrorResponse;
 import kr.ac.ks.cs_web_back.global.swagger.error.ErrorCase;
@@ -31,6 +33,7 @@ public interface SpringDocAuthController {
     CsResponse<AuthLoginResponse> login(
             @RequestBody AuthLoginRequest request
     );
+
     @Operation(summary = "로그아웃", description = "사용자의 JWT토큰을 받아 형식을 검사하고 성공시 토큰을 만료시킵니다.")
     @ApiResponse(responseCode = "200", description = "로그아웃에 성공했습니다.")
     @ApiErrorResponse(status = HttpStatus.UNAUTHORIZED, instance = "/auth/logout", errorCases = {
@@ -41,6 +44,7 @@ public interface SpringDocAuthController {
             @ErrorCase(description = "서버 오류", code = 5000, exampleMessage = "서버에서 예기치 못한 오류가 발생했습니다.")
     })
     CsResponse<Void> logout(
-            @RequestHeader("Authorization") String authorizationHeader
+            @RequestHeader("Authorization") String authorizationHeader,
+            @Parameter(hidden=true)@IdentifiedUser Member member
     );
 }

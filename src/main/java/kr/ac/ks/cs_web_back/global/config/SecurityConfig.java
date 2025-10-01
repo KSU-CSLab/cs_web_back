@@ -28,7 +28,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers(PathRequest.toH2Console()).permitAll() // H2 콘솔 경로 허용
-                        .requestMatchers("/member/register", "/auth/login", "auth/logout", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        .requestMatchers("/member/register", "/auth/login", "/auth/logout", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)

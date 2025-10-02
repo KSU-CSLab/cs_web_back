@@ -34,7 +34,8 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0'
-	compileOnly 'org.projectlombok:lombok'
+
+    compileOnly 'org.projectlombok:lombok'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	runtimeOnly 'com.h2database:h2'
 	runtimeOnly 'com.mysql:mysql-connector-j'
@@ -63,7 +64,8 @@ jacocoTestReport {
 
         // 생성될 리포트의 위치 지정
         xml.destination(file("${buildDir}/reports/jacoco/test/jacocoTestReport.xml"))
-        html.destination(file("${buildDir}/reports/jacoco/test/jacocoTestReport.html"))
+        html.outputLocation.set(layout.buildDirectory.dir("reports/jacoco/test/html"))
+
     }
 
     afterEvaluate {
@@ -73,8 +75,9 @@ jacocoTestReport {
                     "**/config/**",
                     "**/common/**",
                     "**/exeption/**",
-                    "**/response/**",
+                    "**/request/**",
                     "**/swagger/**",
+                    "**/global/**",
                     "**/code/**",
                     "**/dto/**"
             ])

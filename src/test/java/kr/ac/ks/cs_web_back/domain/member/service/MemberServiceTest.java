@@ -2,6 +2,7 @@ package kr.ac.ks.cs_web_back.domain.member.service;
 
 import kr.ac.ks.cs_web_back.domain.member.controller.code.MemberExceptionCode;
 import kr.ac.ks.cs_web_back.domain.member.dto.request.MemberCreateRequest;
+import kr.ac.ks.cs_web_back.domain.member.dto.response.MemberResponse;
 import kr.ac.ks.cs_web_back.domain.member.model.Member;
 import kr.ac.ks.cs_web_back.domain.member.repository.MemberRepository;
 import kr.ac.ks.cs_web_back.global.exeption.domain.ConflictException;
@@ -113,5 +114,35 @@ public class MemberServiceTest {
         assertThatThrownBy(() -> memberService.loadUserByUsername(nonExistentEmail))
                 .isInstanceOf(org.springframework.security.core.userdetails.UsernameNotFoundException.class)
                 .hasMessage("User not found");
+    }
+    @Test
+    @DisplayName("유저정보 조회 성공: 저장된 멤버를 조회해 MemberResponse로 반환한다.")
+    void getMemberInfo_success_returnsMemberResponse() {
+        // given
+        Member saved = memberRepository.saveAndFlush(
+                Member.builder()
+                        .email("example@ks.ac.kr")
+                        .password(passwordEncoder.encode("anyPassword"))
+                        .username("쿨쿨푸데데드르렁퓨우") // nickname은 username으로 매핑됨
+                        .build()
+        );
+
+        // when
+        MemberResponse response = memberService.getMemberInfo(saved.getId());
+
+        // then
+        assertThat(response.email()).isEqualTo("example@ks.ac.kr");
+        assertThat(response.nickname()).isEqualTo("쿨쿨푸데데드르렁퓨우");
+    }
+    @Test
+    @DisplayName("유저정보 조회 실패: 존재하지 않는 id면 IllegalArgumentException '유저를 찾을 수 없습니다.'를 반환한다.")
+    void getMemberInfo_notFound_throwsIllegalArgumentException() {
+        // given
+        Long notExistId = 999L;
+
+        // when & then
+        assertThatThrownBy(() -> memberService.getMemberInfo(notExistId))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("유저를 찾을 수 없습니다.");
     }
 }

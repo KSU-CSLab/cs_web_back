@@ -16,6 +16,7 @@ public enum MemberExceptionCode implements ExceptionCode {
 
     TOKEN_MISSING(9001, "토큰이 없습니다."),
     UNAUTHORIZED_INVALID_TOKEN(8001, "유효하지 않은 토큰입니다."),
+    INVALID_TOKEN_FORMAT(8002, "유효하지 않은 토큰 형식입니다."),
     UNAUTHORIZED_FAILED_VALIDATION(8002, "인증에 실패했습니다."),
     TOKEN_EXPIRED(8003, "만료된 토큰입니다."),
     FORBIDDEN_FINDING_OTHER_USER_PROFILE(7001, "본인의 정보만 조회할 수 있습니다."),

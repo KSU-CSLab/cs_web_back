@@ -6,6 +6,7 @@ import kr.ac.ks.cs_web_back.domain.member.model.Member;
 import kr.ac.ks.cs_web_back.domain.member.repository.MemberRepository;
 import kr.ac.ks.cs_web_back.global.exeption.domain.ConflictException;
 import lombok.RequiredArgsConstructor;
+import kr.ac.ks.cs_web_back.domain.member.dto.request.MemberCreateRequest;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -20,6 +21,23 @@ public class MemberService implements UserDetailsService {
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
 
+    public Long createMember(MemberCreateRequest request) {
+        if (memberRepository.existsByEmail(request.email()))
+            throw new ConflictException(MemberExceptionCode.CONFLICT_EMAIL);
+
+        if (memberRepository.existsByUsername(request.username()))
+            throw new ConflictException(MemberExceptionCode.CONFLICT_USERNAME);
+
+        String encodedPassword = passwordEncoder.encode(request.password());
+
+        Member member = Member.builder()
+                .email(request.email())
+                .password(encodedPassword)
+                .username(request.username())
+                .build();
+
+        return memberRepository.save(member).getId();
+    }
 
     @Transactional(readOnly = true)
     public MemberResponse getMemberInfo(Long id) {

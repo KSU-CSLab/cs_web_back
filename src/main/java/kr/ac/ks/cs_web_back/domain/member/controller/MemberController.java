@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/member")
 @RequiredArgsConstructor
-public class MemberController implements SpringDocMemberInfoController {
+public class MemberController implements SpringDocMemberInfoController,SpringDocMemberController {
 
     private final MemberService memberService;
 

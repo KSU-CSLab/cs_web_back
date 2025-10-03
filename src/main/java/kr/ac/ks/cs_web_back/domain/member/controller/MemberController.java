@@ -2,7 +2,6 @@ package kr.ac.ks.cs_web_back.domain.member.controller;
 
 import jakarta.validation.Valid;
 import kr.ac.ks.cs_web_back.domain.member.dto.request.MemberCreateRequest;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import kr.ac.ks.cs_web_back.domain.member.controller.code.MemberSuccessCode;
 import kr.ac.ks.cs_web_back.domain.member.dto.response.MemberResponse;

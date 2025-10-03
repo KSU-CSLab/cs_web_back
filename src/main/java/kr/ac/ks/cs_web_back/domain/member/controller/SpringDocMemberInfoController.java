@@ -11,7 +11,6 @@ import kr.ac.ks.cs_web_back.global.swagger.error.ApiErrorResponse;
 import kr.ac.ks.cs_web_back.global.swagger.error.ErrorCase;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import org.springframework.web.bind.annotation.PathVariable;
 

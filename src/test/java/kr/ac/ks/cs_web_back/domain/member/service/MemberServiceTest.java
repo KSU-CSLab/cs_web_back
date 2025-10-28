@@ -7,6 +7,7 @@ import kr.ac.ks.cs_web_back.domain.member.fixture.MemberFixture;
 import kr.ac.ks.cs_web_back.domain.member.model.Member;
 import kr.ac.ks.cs_web_back.domain.member.repository.MemberRepository;
 import kr.ac.ks.cs_web_back.global.exeption.domain.ConflictException;
+import kr.ac.ks.cs_web_back.global.exeption.domain.NotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -153,14 +154,14 @@ public class MemberServiceTest {
         assertThat(response.nickname()).isEqualTo("쿨쿨푸데데드르렁퓨우");
     }
     @Test
-    @DisplayName("유저정보 조회 실패: 존재하지 않는 id면 IllegalArgumentException '유저를 찾을 수 없습니다.'를 반환한다.")
+    @DisplayName("유저정보 조회 실패: 존재하지 않는 id면 IllegalArgumentException '유저를 찾을 수 없습니다.'를 반환")
     void getMemberInfo_notFound_throwsIllegalArgumentException() {
         // given
         Long notExistId = 999L;
 
         // when & then
         assertThatThrownBy(() -> memberService.getMemberInfo(notExistId))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(NotFoundException.class)
                 .hasMessage("유저를 찾을 수 없습니다.");
     }
 }

@@ -10,7 +10,6 @@ import kr.ac.ks.cs_web_back.global.annotation.IdentifiedUser;
 import kr.ac.ks.cs_web_back.global.response.CsResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,8 +18,15 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class MemberController implements SpringDocMemberController {
 
-    private final MemberService memberService;
+    @Override
+    @PostMapping("/withdrawal")
+    @ResponseStatus(HttpStatus.OK)
+    public CsResponse<Void> withdraw(@IdentifiedUser Member member) {
+        memberService.deleteMember(member);
+        return CsResponse.of(MemberSuccessCode.OK_WITHDRAWN);
+    }
 
+    private final MemberService memberService;
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
     public CsResponse<Long> register(
@@ -30,17 +36,18 @@ public class MemberController implements SpringDocMemberController {
         return CsResponse.of(MemberSuccessCode.GENERATED_REGISTERED, id);
     }
 
-    @PostMapping("/withdrawal")
-    @ResponseStatus(HttpStatus.OK)
-    public CsResponse<Void> withdraw(
-            @IdentifiedUser Member member
+    @GetMapping("/profile")
+    public CsResponse<MemberResponse> getMemberInfo(
+            @RequestHeader("Authorization") String token,
+            @RequestParam("userid") Long userId
     ) {
-        memberService.deleteMember(member);
-        return CsResponse.of(MemberSuccessCode.OK_WITHDRAWN);
+        MemberResponse response = memberService.getMemberInfo(userId);
+        return CsResponse.of(MemberSuccessCode.OK_FOUND_USER_PROFILE, response);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<MemberResponse> getMemberInfo(@PathVariable Long id) {
-        return ResponseEntity.ok(memberService.getMemberInfo(id));
+    public CsResponse<MemberResponse> getMemberInfo(@PathVariable Long id) {
+        MemberResponse response = memberService.getMemberInfo(id);
+        return CsResponse.of(MemberSuccessCode.OK_FOUND_USER_PROFILE, response);
     }
 }

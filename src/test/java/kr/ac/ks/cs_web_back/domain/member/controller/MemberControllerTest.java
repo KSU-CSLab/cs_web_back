@@ -14,6 +14,7 @@ import kr.ac.ks.cs_web_back.global.jwt.JwtTokenResolver;
 import kr.ac.ks.cs_web_back.global.jwt.JwtUtil;
 import kr.ac.ks.cs_web_back.global.resolver.IdentifiedUserArgumentResolver;
 import org.junit.jupiter.api.DisplayName;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
@@ -29,7 +30,6 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = MemberController.class, excludeAutoConfiguration = SecurityAutoConfiguration.class)
@@ -224,7 +224,7 @@ public class MemberControllerTest {
     void getMemberInfo_401_invalidTokenFormat() throws Exception {
         // given
         when(memberService.getMemberInfo(anyLong()))
-                .thenThrow(new InvalidTokenException(MemberExceptionCode.INVALID_TOKEN_FORMAT));
+                .thenThrow(new InvalidTokenException(MemberExceptionCode.UNAUTHORIZED_INVALID_TOKEN));
 
         // when & then
         mockMvc.perform(get("/member/profile")
@@ -254,7 +254,7 @@ public class MemberControllerTest {
     void getMemberInfo_403_forbidden() throws Exception {
         // given
         when(memberService.getMemberInfo(anyLong()))
-                .thenThrow(new ForbiddenException(MemberExceptionCode.FORBIDDEN_SELF_ONLY));
+                .thenThrow(new ForbiddenException(MemberExceptionCode.FORBIDDEN_FINDING_OTHER_USER_PROFILE));
 
         // when & then
         mockMvc.perform(get("/member/profile")

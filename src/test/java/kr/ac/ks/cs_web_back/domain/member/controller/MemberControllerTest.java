@@ -1,30 +1,39 @@
 package kr.ac.ks.cs_web_back.domain.member.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import kr.ac.ks.cs_web_back.domain.member.controller.code.MemberExceptionCode;
 import kr.ac.ks.cs_web_back.domain.member.dto.request.MemberCreateRequest;
+import kr.ac.ks.cs_web_back.domain.member.dto.response.MemberResponse;
 import kr.ac.ks.cs_web_back.domain.member.fixture.MemberFixture;
 import kr.ac.ks.cs_web_back.domain.member.model.Member;
 import kr.ac.ks.cs_web_back.domain.member.service.MemberService;
+import kr.ac.ks.cs_web_back.global.exeption.domain.ForbiddenException;
+import kr.ac.ks.cs_web_back.global.exeption.domain.InvalidTokenException;
+import kr.ac.ks.cs_web_back.global.exeption.domain.NotFoundException;
 import kr.ac.ks.cs_web_back.global.jwt.JwtTokenResolver;
 import kr.ac.ks.cs_web_back.global.jwt.JwtUtil;
 import kr.ac.ks.cs_web_back.global.resolver.IdentifiedUserArgumentResolver;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
-
 @WebMvcTest(controllers = MemberController.class, excludeAutoConfiguration = SecurityAutoConfiguration.class)
+@Import(TestErrorAdvice.class)
 public class MemberControllerTest {
 
     @MockitoBean
@@ -57,8 +66,8 @@ public class MemberControllerTest {
 
         // when & then
         mockMvc.perform(post("/member/register")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(request)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated());
     }
 
@@ -125,8 +134,8 @@ public class MemberControllerTest {
 
         // when & then
         mockMvc.perform(post("/member/register")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(request)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
     }
 
@@ -178,5 +187,93 @@ public class MemberControllerTest {
         mockMvc.perform(post("/member/withdrawal")
                         .header("Authorization", token))
                 .andExpect(status().isOk());
+    }
+
+
+    @Test
+    @DisplayName("유저조회 성공: 유저 정보 조회에 성공하면 200 OK를 반환한다.")
+    public void getMemberInfoReturns200Ok() throws Exception {
+        // given
+        MemberResponse resp = new MemberResponse(
+                "example@ks.ac.kr",
+                "쿨쿨푸데데드르렁퓨우",
+                java.time.LocalDate.of(2006, 2, 3),
+                "010 6648 7274"
+        );
+        given(memberService.getMemberInfo(anyLong())).willReturn(resp);
+
+        // when & then
+        mockMvc.perform(get("/member/profile")
+                        .header("Authorization", "accessToken")
+                        .param("userid", "1")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("유저조회 실패: Authorization 헤더가 없으면 400 BadRequest를 반환한다.")
+    public void getMemberInfoWithoutAuthHeaderReturns400BadRequest() throws Exception {
+        // when & then
+        mockMvc.perform(get("/member/profile")
+                        .param("userid", "1"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("유저조회 실패: 유효하지 않은 토큰 형식이면 401 Unauthorized를 반환한다.")
+    void getMemberInfo_401_invalidTokenFormat() throws Exception {
+        // given
+        when(memberService.getMemberInfo(anyLong()))
+                .thenThrow(new InvalidTokenException(MemberExceptionCode.INVALID_TOKEN_FORMAT));
+
+        // when & then
+        mockMvc.perform(get("/member/profile")
+                        .header("Authorization", "bad-format-token")
+                        .param("userid", "1")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @DisplayName("유저조회 실패: 만료된 토큰이면 401 Unauthorized를 반환한다.")
+    void getMemberInfo_401_expiredToken() throws Exception {
+        // given
+        when(memberService.getMemberInfo(anyLong()))
+                .thenThrow(new InvalidTokenException(MemberExceptionCode.TOKEN_EXPIRED));
+
+        // when & then
+        mockMvc.perform(get("/member/profile")
+                        .header("Authorization", "expired-token")
+                        .param("userid", "1"))
+                .andExpect(status().isUnauthorized());
+
+    }
+
+    @Test
+    @DisplayName("유저조회 실패: 본인의 정보가 아니면 403 Forbidden를 반환한다.")
+    void getMemberInfo_403_forbidden() throws Exception {
+        // given
+        when(memberService.getMemberInfo(anyLong()))
+                .thenThrow(new ForbiddenException(MemberExceptionCode.FORBIDDEN_SELF_ONLY));
+
+        // when & then
+        mockMvc.perform(get("/member/profile")
+                        .header("Authorization", "accessToken-of-user-1")
+                        .param("userid", "2"))
+                .andExpect(status().isForbidden());
+
+    }
+
+
+    @Test
+    @DisplayName("유저조회 실패: 존재하지 않는 사용자면 404 NotFound를 반환한다.")
+    public void getMemberInfoReturns404NotFound() throws Exception {
+        when(memberService.getMemberInfo(anyLong()))
+                .thenThrow(new NotFoundException(MemberExceptionCode.NOT_FOUND_USER));
+
+        mockMvc.perform(get("/member/profile")
+                        .header("Authorization", "accessToken")
+                        .param("userid", "99"))
+                .andExpect(status().isNotFound());
     }
 }

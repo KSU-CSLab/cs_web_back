@@ -33,7 +33,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = MemberController.class, excludeAutoConfiguration = SecurityAutoConfiguration.class)
-@Import(TestErrorAdvice.class)
 public class MemberControllerTest {
 
     @MockitoBean
@@ -200,6 +199,7 @@ public class MemberControllerTest {
                 java.time.LocalDate.of(2006, 2, 3),
                 "010 6648 7274"
         );
+        given(identifiedUserArgumentResolver.resolveArgument(any(), any(), any(), any())).willReturn(resp);
         given(memberService.getMemberInfo(anyLong())).willReturn(resp);
 
         // when & then
@@ -223,12 +223,12 @@ public class MemberControllerTest {
     @DisplayName("유저조회 실패: 유효하지 않은 토큰 형식이면 401 Unauthorized를 반환한다.")
     void getMemberInfo_401_invalidTokenFormat() throws Exception {
         // given
-        when(memberService.getMemberInfo(anyLong()))
+        when(identifiedUserArgumentResolver.resolveArgument(any(), any(), any(), any()))
                 .thenThrow(new InvalidTokenException(MemberExceptionCode.UNAUTHORIZED_INVALID_TOKEN));
 
         // when & then
         mockMvc.perform(get("/member/profile")
-                        .header("Authorization", "bad-format-token")
+                        .header("Authorization", "invalid-token")
                         .param("userid", "1")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnauthorized());
@@ -238,7 +238,7 @@ public class MemberControllerTest {
     @DisplayName("유저조회 실패: 만료된 토큰이면 401 Unauthorized를 반환한다.")
     void getMemberInfo_401_expiredToken() throws Exception {
         // given
-        when(memberService.getMemberInfo(anyLong()))
+        when(identifiedUserArgumentResolver.resolveArgument(any(), any(), any(), any()))
                 .thenThrow(new InvalidTokenException(MemberExceptionCode.TOKEN_EXPIRED));
 
         // when & then
@@ -246,13 +246,13 @@ public class MemberControllerTest {
                         .header("Authorization", "expired-token")
                         .param("userid", "1"))
                 .andExpect(status().isUnauthorized());
-
     }
 
     @Test
     @DisplayName("유저조회 실패: 본인의 정보가 아니면 403 Forbidden를 반환한다.")
     void getMemberInfo_403_forbidden() throws Exception {
         // given
+        given(identifiedUserArgumentResolver.resolveArgument(any(), any(), any(), any())).willReturn(resp);
         when(memberService.getMemberInfo(anyLong()))
                 .thenThrow(new ForbiddenException(MemberExceptionCode.FORBIDDEN_FINDING_OTHER_USER_PROFILE));
 
@@ -268,9 +268,12 @@ public class MemberControllerTest {
     @Test
     @DisplayName("유저조회 실패: 존재하지 않는 사용자면 404 NotFound를 반환한다.")
     public void getMemberInfoReturns404NotFound() throws Exception {
+        //given
+        given(identifiedUserArgumentResolver.resolveArgument(any(), any(), any(), any())).willReturn(resp);
         when(memberService.getMemberInfo(anyLong()))
                 .thenThrow(new NotFoundException(MemberExceptionCode.NOT_FOUND_USER));
 
+        // when & then
         mockMvc.perform(get("/member/profile")
                         .header("Authorization", "accessToken")
                         .param("userid", "99"))
